@@ -1,4 +1,4 @@
-package LibraryManager;
+package Domain;
 
 public interface Pump {
     void turnOn();

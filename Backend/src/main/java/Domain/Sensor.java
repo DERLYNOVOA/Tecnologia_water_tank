@@ -1,4 +1,4 @@
-package LibraryManager;
+package Domain;
 
 public abstract class Sensor {
     protected boolean isActive;

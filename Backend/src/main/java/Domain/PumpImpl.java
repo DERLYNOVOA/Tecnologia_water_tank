@@ -1,4 +1,4 @@
-package LibraryManager;
+package Domain;
 
 public class PumpImpl implements Pump {
     private boolean isActive;

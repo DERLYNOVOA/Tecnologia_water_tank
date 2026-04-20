@@ -1,4 +1,4 @@
-package LibraryManager;
+package Services;
 
 import java.security.MessageDigest;
 import java.util.Base64;

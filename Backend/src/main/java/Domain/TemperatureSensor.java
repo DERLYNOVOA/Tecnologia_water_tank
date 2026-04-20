@@ -1,4 +1,4 @@
-package LibraryManager;
+package Domain;
 
 public class TemperatureSensor extends Sensor {
     private float temperature;

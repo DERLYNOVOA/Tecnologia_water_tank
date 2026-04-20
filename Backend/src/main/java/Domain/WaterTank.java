@@ -1,4 +1,4 @@
-package LibraryManager;
+package Domain;
 
 public class WaterTank {
     private WaterLevelManager waterManager;

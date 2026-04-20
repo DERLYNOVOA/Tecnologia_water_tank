@@ -1,4 +1,4 @@
-package LibraryManager;
+package ui;
 
 import Commands.CommandHandler;
 

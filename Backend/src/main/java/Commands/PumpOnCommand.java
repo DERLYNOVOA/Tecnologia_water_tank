@@ -1,4 +1,9 @@
-package LibraryManager;
+package Commands;
+
+import Domain.Pump;
+import Services.AppContext;
+import Domain.PumpImpl;
+
 
 public class PumpOnCommand implements Command {
     @Override

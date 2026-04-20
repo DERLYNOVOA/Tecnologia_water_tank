@@ -1,4 +1,4 @@
-package LibraryManager;
+package Main;
 
 public class Alarm {
     private boolean isActive;

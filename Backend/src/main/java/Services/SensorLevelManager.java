@@ -1,4 +1,4 @@
-package LibraryManager;
+package Services;
 
 public class SensorLevelManager {
     private float level;

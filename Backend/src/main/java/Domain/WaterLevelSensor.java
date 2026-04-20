@@ -1,4 +1,4 @@
-package LibraryManager;
+package Domain;
 
 public class WaterLevelSensor extends Sensor {
     private float waterLevel;

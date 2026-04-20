@@ -1,6 +1,6 @@
-package LibraryManager;
+package Services;
 
-import Domain.IPump;
+import Domain.Pump;
 import Domain.WaterLevelSensor;
 
 public class WaterLevelManager {

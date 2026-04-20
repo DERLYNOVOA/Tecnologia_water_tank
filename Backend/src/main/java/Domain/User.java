@@ -1,4 +1,4 @@
-package LibraryManager;
+package Domain;
 
 import java.util.UUID;
 
