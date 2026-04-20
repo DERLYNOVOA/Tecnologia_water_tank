@@ -6,10 +6,9 @@ import java.util.Optional;
 
 public class AuthenticationService {
     private UserRepository userRepository;
-    // 1. Declaramos la interfaz (El QUÉ)
     private PasswordHasher passwordHasher;
 
-    // 2. Inyectamos la dependencia en el constructor
+    //Inyectamos la dependencia en el constructor
     public AuthenticationService(UserRepository userRepository, PasswordHasher passwordHasher) {
         this.userRepository = userRepository;
         this.passwordHasher = passwordHasher;
@@ -20,9 +19,6 @@ public class AuthenticationService {
 
         if (userOpt.isPresent()) {
             User user = userOpt.get();
-
-            // 3. USAMOS LA VARIABLE (en minúscula), NO LA CLASE
-            // Y llamamos al método que definimos en la interfaz
             if (user.isActive() && passwordHasher.verifyPassword(password, user.getCredential().getPasswordHash())) {
                 return userOpt;
             }

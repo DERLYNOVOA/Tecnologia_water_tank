@@ -17,11 +17,9 @@ public class AppContext {
     public WaterTank getTank() {
         return tank;
     }
-
     public Authenticator getAuth() {
         return auth;
     }
-
     public EventHandler getEvents() {
         return events;
     }
