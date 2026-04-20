@@ -1,4 +1,4 @@
-package repository;
+package Repository;
 
 import Domain.User;
 
@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-public class nMemoryUserRepository implements UserRepository {
+public class InMemoryUserRepository implements UserRepository {
     private Map<UUID, User> users = new HashMap<>();
 
     @Override
@@ -18,7 +18,7 @@ public class nMemoryUserRepository implements UserRepository {
     @Override
     public Optional<User> findByUserName(String userName) {
         return users.values().stream()
-                .filter(u -> u.getusername().equals(userName))
+                .filter(u -> u.getUserName().equals(userName))
                 .findFirst();
     }
 

@@ -1,13 +1,25 @@
 package Services;
 
-public class SimplePasswordHasher {
-    public String hash(String password, String salt) {
-        // Implementación simple de hash (solo para fines ilustrativos)
-        return password + ":" + salt;
+import java.security.MessageDigest;
+import java.util.Base64;
+
+// Esta clase firma el contrato de la interfaz
+public class SimplePasswordHasher implements PasswordHasher {
+
+    @Override
+    public String hashPassword(String password) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] messageDigest = md.digest(password.getBytes());
+            return Base64.getEncoder().encodeToString(messageDigest);
+        } catch (Exception e) {
+            throw new RuntimeException("Error hashing password", e);
+        }
     }
 
-    public boolean verify(String plain, String salt, String expected) {
-        return hash(plain, salt).equals(expected);
+    @Override
+    public boolean verifyPassword(String password, String hashedPassword) {
+        String hash = hashPassword(password);
+        return hash.equals(hashedPassword);
     }
 }
-

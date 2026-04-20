@@ -1,4 +1,4 @@
-package LibraryManager;
+package Domain;
 
 public class WaterLevelSensor extends Sensor {
     private float waterLevel;
@@ -21,7 +21,7 @@ public class WaterLevelSensor extends Sensor {
     public void handleSensor() {
         if (isActive) {
             Event event = new Event(java.util.UUID.randomUUID(), SensorTypeEvent.WaterLevelEvent, "WaterLevel: " + waterLevel, java.time.LocalDateTime.now());
-            handler.emit(event);
+            handler.emitEvent(event);
         }
     }
 }

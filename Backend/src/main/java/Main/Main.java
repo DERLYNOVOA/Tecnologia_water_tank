@@ -1,37 +1,34 @@
-import Commands.CommandHandler;
-import Commands.ViewLevelCommand;
-import Commands.PumpOnCommand;
-import Commands.LoginCommand;
-import Domain.WaterTank;
-import Domain.StubWaterLevelSensor;
-import Domain.StubTemperatureSensor;
-import ui.Console;
+package Main;
 
-/**
- * Punto de entrada de la aplicación.
- * Inyección manual de dependencias:
- * se instancian todos los objetos aquí y se pasan
- * hacia adentro - ninguna clase crea sus propias dependencias.
- */
+import Domain.*;
+import Services.*;
+import ArduinoComm.ArduinoSerial;
+
 public class Main {
-
     public static void main(String[] args) {
+        System.out.println("🚀 INICIANDO PRUEBA EN VIVO CON ARDUINO...");
 
-        // 1. Crear sensores
-        StubWaterLevelSensor waterSensor = new StubWaterLevelSensor();
-        StubTemperatureSensor tempSensor = new StubTemperatureSensor();
+        // 1. El motor de eventos
+        EventHandler handler = new EventHandler();
 
-        // 2. Crear dominio
-        WaterTank waterTank = new WaterTank(waterSensor, tempSensor, 100.0f);
+        // 2. El Dominio (Ajusta el 20.0f a la altura real de tu tanque en cm si es diferente)
+        WaterTank miTanque = new WaterTank(20.0f);
+        WaterLevelSensor miSensor = new WaterLevelSensor(handler);
 
-        // 3. Registrar comandos en el CommandHandler (Patrón Command)
-        CommandHandler handler = new CommandHandler();
-        handler.register("nivel", new ViewLevelCommand(waterTank));
-        handler.register("bomba", new PumpOnCommand());
-        handler.register("login", new LoginCommand());
+        // 3. El Hardware y Actuadores
+        IPump miBomba = new MockPump(); // Usamos la de mentiras porque no tienes el relé aún
 
-        // 4. Inyectar handler en la UI (Indirección)
-        Console console = new Console(handler);
-        console.start();
+        // 🔌 CONEXIÓN REAL AL ARDUINO
+        // ¡IMPORTANTE! Cambia "COM3" por el puerto exacto en el que está conectado tu Arduino
+        ArduinoSerial conexion = new ArduinoSerial("COM3", miSensor);
+
+        // 4. El Cerebro (El Manager)
+        WaterLevelManager manager = new WaterLevelManager(miBomba, miSensor, miTanque, handler);
+
+        // 5. ¡A darle energía!
+        conexion.iniciarConexion();
+
+        System.out.println("✅ Sistema escuchando el puerto USB...");
+        System.out.println("👉 Mueve tu mano arriba y abajo sobre el sensor.");
     }
 }

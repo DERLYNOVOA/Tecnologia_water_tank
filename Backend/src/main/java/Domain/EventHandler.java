@@ -1,4 +1,4 @@
-package LibraryManager;
+package Domain;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +14,7 @@ public class EventHandler {
         listeners.remove(listener);
     }
 
-    public void emit(Event event) {
+    public void emitEvent(Event event) {
         for (EventListener listener : listeners) {
             listener.onEvent(event);
         }

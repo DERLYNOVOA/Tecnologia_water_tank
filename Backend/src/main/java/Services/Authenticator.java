@@ -5,7 +5,7 @@ import java.util.Optional;
 
 public class Authenticator {
     private AuthenticationService authenticationService;
-    private AuthorizationService authorizationService;
+    private Services.AuthorizationService authorizationService;
     private User currentUser;
 
     public Authenticator(AuthenticationService authenticationService, AuthorizationService authorizationService) {

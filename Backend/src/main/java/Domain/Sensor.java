@@ -1,4 +1,4 @@
-package LibraryManager;
+package Domain;
 
 public abstract class Sensor {
     protected boolean isActive;
@@ -12,7 +12,6 @@ public abstract class Sensor {
     public boolean isActive() {
         return isActive;
     }
-
     public void setActive(boolean active) {
         isActive = active;
     }

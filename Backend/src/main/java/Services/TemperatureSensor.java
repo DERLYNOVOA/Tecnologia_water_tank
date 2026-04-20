@@ -1,5 +1,7 @@
 package Services;
 
+import Domain.EventHandler;
+
 public class TemperatureSensor extends Sensor {
     private float temperature;
 

@@ -1,6 +1,9 @@
-package LibraryManager;
+package Main;
 
 import Domain.User;
+import Services.AuthenticationService;
+import Services.AuthorizationService;
+
 import java.util.Optional;
 
 public class Authenticator {
