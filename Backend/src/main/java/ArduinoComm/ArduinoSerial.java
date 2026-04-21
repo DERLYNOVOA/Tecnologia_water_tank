@@ -44,7 +44,7 @@ public class ArduinoSerial {
                 if (lineaRecibida.isEmpty()) continue;
 
                 try {
-                    //System.out.println("📡 Dato crudo recibido del Arduino: [" + lineaRecibida + "]");
+                    System.out.println("📡 RAW: [" + lineaRecibida + "]");
 
                     float distanciaLeida = Float.parseFloat(lineaRecibida);
                     sensorDelDominio.setWaterLevel(distanciaLeida);

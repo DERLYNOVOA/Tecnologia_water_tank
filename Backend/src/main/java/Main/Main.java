@@ -20,7 +20,8 @@ public class Main {
 
         // 2. Dominio y Eventos
         EventHandler handler = new EventHandler();
-        WaterTank miTanque = new WaterTank(20.0f);
+        // Main.java
+        WaterTank miTanque = new WaterTank(15.0f); // ← tu rango real de prueba
         WaterLevelSensor miSensor = new WaterLevelSensor(handler);
 
         // --- EL CAMBIO CLAVE PARA EL HARDWARE ---
@@ -35,18 +36,20 @@ public class Main {
         WaterLevelManager manager = new WaterLevelManager(miBomba, miSensor, miTanque, handler, logger);
 
         // 6. Comandos y Contexto Global
-        AppContext context = new AppContext(miTanque, authenticator, handler, logger);
+        // Contextos separados por responsabilidad
+        AppContext context = new AppContext(authenticator, handler, logger);
         CommandHandler cmdHandler = new CommandHandler(context);
         cmdHandler.registerCommand("login", new LoginCommand());
         cmdHandler.registerCommand("prender_bomba", new PumpOnCommand(miBomba));
-        cmdHandler.registerCommand("ver_nivel", new ViewLevelCommand(miSensor, miBomba));
+        cmdHandler.registerCommand("ver_nivel", new ViewLevelCommand(manager));
         cmdHandler.registerCommand("logs", new ViewLogsCommand());
+        cmdHandler.registerCommand("apagar_bomba", new PumpOffCommand(miBomba));
 
         // 7. Arrancamos la lectura de datos
         conexion.iniciarConexion();
 
         // 8. Lanzar la Interfaz de Usuario (Ahora le pasamos también el contexto)
-        Console ui = new Console(cmdHandler, context);
+        Console ui = new Console(cmdHandler, context, manager);
         ui.start();
 
         // 9. Apagado seguro

@@ -30,3 +30,4 @@ public class PumpOnCommand implements Command {
         context.getLogger().saveLog("[ACTION] " + user + " encendió la bomba manualmente.");
     }
 }
+

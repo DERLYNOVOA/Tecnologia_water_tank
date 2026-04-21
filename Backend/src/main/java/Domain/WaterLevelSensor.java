@@ -16,7 +16,7 @@ public class WaterLevelSensor extends Sensor {
         this.waterLevel = waterLevel;
         handleSensor();
     }
-
+    public boolean hasData() { return waterLevel >= 0; }
     @Override
     public void handleSensor() {
         if (isActive) {

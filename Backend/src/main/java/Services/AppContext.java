@@ -1,25 +1,20 @@
 package Services;
 
-import Domain.EventHandler;
-import Domain.WaterTank;
+import Domain.*;
 import Repository.IRepositoryLog;
 
 public class AppContext {
-    private WaterTank tank;
-    private Authenticator auth;
-    private EventHandler events;
-    private IRepositoryLog logger;
+    private final Authenticator auth;
+    private final EventHandler  handler;
+    private final IRepositoryLog logger;
 
-    public AppContext(WaterTank tank, Authenticator auth, EventHandler events, IRepositoryLog logger) {
-        this.tank = tank;
-        this.auth = auth;
-        this.events = events;
-        this.logger = logger;
+    public AppContext(Authenticator auth, EventHandler handler, IRepositoryLog logger) {
+        this.auth    = auth;
+        this.handler = handler;
+        this.logger  = logger;
     }
 
-    public WaterTank getTank() {return tank;}
-    public Authenticator getAuth() {return auth;}
-    public EventHandler getEvents() {return events;}
-    public IRepositoryLog getLogger() { return logger; }
+    public Authenticator  getAuth()    { return auth; }
+    public EventHandler   getHandler() { return handler; }
+    public IRepositoryLog getLogger()  { return logger; }
 }
-
