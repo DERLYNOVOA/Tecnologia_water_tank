@@ -5,7 +5,7 @@ import Domain.User;
 
 public class AuthorizationService {
     
-    public boolean hasPermission(User user, String action) {
+    public boolean hasPermission(User user, String code) {
         if (user.getRole() == RoleType.ADMIN) {
             return true;
         }

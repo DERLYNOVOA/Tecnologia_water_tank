@@ -1,4 +1,4 @@
-package LibraryManager;
+package Services;
 
 import Domain.TemperatureSensor;
 

@@ -1,34 +1,58 @@
 package Main;
 
 import Domain.*;
+import Repository.*;
 import Services.*;
 import ArduinoComm.ArduinoSerial;
+import ui.Console;
 
 public class Main {
     public static void main(String[] args) {
-        System.out.println("🚀 INICIANDO PRUEBA EN VIVO CON ARDUINO...");
+        System.out.println("🚀 Iniciando Motor de Sistema Cyseth...");
 
-        // 1. El motor de eventos
+        // 1. Seguridad y Persistencia
+        UserRepository userRepo = new InMemoryUserRepository();
+        PasswordHasher hasher = new SimplePasswordHasher();
+        AuthenticationService authService = new AuthenticationService(userRepo, hasher);
+        AuthorizationService authzService = new AuthorizationService();
+        Authenticator authenticator = new Authenticator(authService, authzService);
+        IRepositoryLog logger = new FileLogRepository();
+
+        // 2. Dominio y Eventos
         EventHandler handler = new EventHandler();
-
-        // 2. El Dominio (Ajusta el 20.0f a la altura real de tu tanque en cm si es diferente)
         WaterTank miTanque = new WaterTank(20.0f);
         WaterLevelSensor miSensor = new WaterLevelSensor(handler);
 
-        // 3. El Hardware y Actuadores
-        IPump miBomba = new MockPump(); // Usamos la de mentiras porque no tienes el relé aún
-
-        // 🔌 CONEXIÓN REAL AL ARDUINO
-        // ¡IMPORTANTE! Cambia "COM3" por el puerto exacto en el que está conectado tu Arduino
+        // --- EL CAMBIO CLAVE PARA EL HARDWARE ---
+        // 3. Hardware (Creamos la conexión PRIMERO)
         ArduinoSerial conexion = new ArduinoSerial("COM3", miSensor);
 
-        // 4. El Cerebro (El Manager)
-        WaterLevelManager manager = new WaterLevelManager(miBomba, miSensor, miTanque, handler);
+        // 4. Actuadores (La bomba ahora recibe la conexión para prender el LED)
+        IPump miBomba = new Pump(conexion);
+        // ----------------------------------------
 
-        // 5. ¡A darle energía!
+        // 5. El Cerebro (El Manager)
+        WaterLevelManager manager = new WaterLevelManager(miBomba, miSensor, miTanque, handler, logger);
+
+        // 6. Comandos y Contexto Global
+        AppContext context = new AppContext(miTanque, authenticator, handler, logger);
+        CommandHandler cmdHandler = new CommandHandler(context);
+        cmdHandler.registerCommand("login", new LoginCommand());
+        cmdHandler.registerCommand("prender_bomba", new PumpOnCommand(miBomba));
+        cmdHandler.registerCommand("ver_nivel", new ViewLevelCommand(miSensor, miBomba));
+        cmdHandler.registerCommand("logs", new ViewLogsCommand());
+
+        // 7. Arrancamos la lectura de datos
         conexion.iniciarConexion();
 
-        System.out.println("✅ Sistema escuchando el puerto USB...");
-        System.out.println("👉 Mueve tu mano arriba y abajo sobre el sensor.");
+        // 8. Lanzar la Interfaz de Usuario (Ahora le pasamos también el contexto)
+        Console ui = new Console(cmdHandler, context);
+        ui.start();
+
+        // 9. Apagado seguro
+        conexion.cerrarConexion();
+        logger.saveLog("Sistema apagado por el usuario de forma segura.");
+        System.out.println("✅ Sistema finalizado.");
+        System.exit(0);
     }
 }

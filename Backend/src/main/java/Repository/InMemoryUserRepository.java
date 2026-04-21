@@ -1,7 +1,11 @@
 package Repository;
 
 import Domain.User;
+import Domain.Credential;
+import Domain.RoleType;
+import Services.SimplePasswordHasher;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -10,6 +14,35 @@ import java.util.UUID;
 public class InMemoryUserRepository implements UserRepository {
     private Map<UUID, User> users = new HashMap<>();
 
+    public InMemoryUserRepository() {
+        SimplePasswordHasher hasher = new SimplePasswordHasher();
+
+        // 1. Creamos las credenciales primero (Fíjate que le pasamos un salt vacío "" por ahora)
+        Credential credAdmin = new Credential(hasher.hashPassword("123"), "", LocalDateTime.now());
+        Credential credUser = new Credential(hasher.hashPassword("123"), "", LocalDateTime.now());
+
+        // 2. Creamos los usuarios pasándoles TODOS los parámetros de tu clase
+        User admin = new User(
+                UUID.randomUUID(), // Genera un ID único automático
+                "ADMIN",           // userName
+                RoleType.ADMIN,    // role
+                true,              // isActive
+                credAdmin          // credential
+        );
+
+        User normalUser = new User(
+                UUID.randomUUID(),
+                "USER",
+                RoleType.USER,
+                true,
+                credUser
+        );
+
+        // 3. Los guardamos en el mapa simulando la base de datos
+        save(admin);
+        save(normalUser);
+    }
+
     @Override
     public void save(User user) {
         users.put(user.getId(), user);
@@ -17,8 +50,9 @@ public class InMemoryUserRepository implements UserRepository {
 
     @Override
     public Optional<User> findByUserName(String userName) {
+        // CORRECCIÓN CLAVE: Buscamos el nombre directamente en 'u' (User), ya no en Credential
         return users.values().stream()
-                .filter(u -> u.getUserName().equals(userName))
+                .filter(u -> u.getUserName().equalsIgnoreCase(userName))
                 .findFirst();
     }
 

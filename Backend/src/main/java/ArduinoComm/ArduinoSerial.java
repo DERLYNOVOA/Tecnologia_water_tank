@@ -44,8 +44,7 @@ public class ArduinoSerial {
                 if (lineaRecibida.isEmpty()) continue;
 
                 try {
-                    // 3. IMPRIMIMOS LO QUE LLEGA (Para saber que no estamos ciegos)
-                    System.out.println("📡 Dato crudo recibido del Arduino: [" + lineaRecibida + "]");
+                    //System.out.println("📡 Dato crudo recibido del Arduino: [" + lineaRecibida + "]");
 
                     float distanciaLeida = Float.parseFloat(lineaRecibida);
                     sensorDelDominio.setWaterLevel(distanciaLeida);
@@ -66,6 +65,14 @@ public class ArduinoSerial {
         if (puertoArduino.isOpen()) {
             puertoArduino.closePort();
             System.out.println("Conexión serial cerrada.");
+        }
+    }
+
+    // Método nuevo para enviarle órdenes al Arduino
+    public void enviarComando(String comando) {
+        if (puertoArduino != null && puertoArduino.isOpen()) {
+            byte[] bytes = comando.getBytes();
+            puertoArduino.writeBytes(bytes, bytes.length);
         }
     }
 }
