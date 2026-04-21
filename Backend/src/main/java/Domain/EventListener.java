@@ -1,4 +1,4 @@
-package Services;
+package Domain;
 
 public interface EventListener {
     void onEvent(Event event);

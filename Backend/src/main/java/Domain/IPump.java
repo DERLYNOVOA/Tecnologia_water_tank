@@ -1,6 +1,6 @@
 package Domain;
 
-public interface Pump {
+public interface IPump {
     void turnOn();
     void turnOff();
     boolean getStatus();

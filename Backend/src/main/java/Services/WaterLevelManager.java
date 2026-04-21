@@ -1,37 +1,47 @@
 package Services;
 
-import Domain.Pump;
+import Domain.IPump;
 import Domain.WaterLevelSensor;
+import Domain.WaterTank;
+import Domain.EventHandler; // <--- Asegúrate de importar esto
+import Domain.EventListener; // <--- Y esto
 
-public class WaterLevelManager {
-    private IPump IPump;
+// Agregamos "implements EventListener" para que pueda escuchar
+public class WaterLevelManager extends SensorLevelManager implements Domain.EventListener {
+
+    private IPump pump;
     private WaterLevelSensor waterSensor;
-    private boolean isActive;
+    private WaterTank tank;
 
-    public WaterLevelManager(IPump pump, WaterLevelSensor waterSensor) {
-        this.IPump = pump;
-        this.waterSensor = waterSensor;
-        this.isActive = false;
+    //Ahora recibe 4 parámetros (incluye el EventHandler)
+    public WaterLevelManager(IPump pump, WaterLevelSensor sensor, WaterTank tank, EventHandler handler) {
+        super(20.0f, 80.0f);
+        this.pump = pump;
+        this.waterSensor = sensor;
+        this.tank = tank;
+
+        //Suscribirse al manejador de eventos
+        handler.subscribe(this);
     }
 
+    //se ejecuta cuando el sensor grita hay nuevo dato!
+    @Override
+    public void onEvent(Domain.Event event) {
+        run(); // Ejecuta la lógica cada vez que llega un evento
+    }
+
+    @Override
     public void run() {
-        // Lógica para gestionar el nivel de agua
-    }
+        float distanciaActual = waterSensor.getWaterLevel();
+        float porcentaje = tank.calculatePercentage(distanciaActual);
 
-    public IPump getPump() {
-        return IPump;
-    }
+        System.out.println("Nivel: " + porcentaje + "%");
 
-    public WaterLevelSensor getWaterSensor() {
-        return waterSensor;
-    }
-
-    public boolean isActive() {
-        return isActive;
-    }
-
-    public void setActive(boolean active) {
-        isActive = active;
+        if (porcentaje <= getMinLevel() && !pump.getStatus()) {
+            pump.turnOn();
+        } else if (porcentaje >= getMaxLevel() && pump.getStatus()) {
+            pump.turnOff();
+        }
     }
 }
 

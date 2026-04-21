@@ -21,7 +21,7 @@ public class TemperatureSensor extends Sensor {
     public void handleSensor() {
         if (isActive) {
             Event event = new Event(java.util.UUID.randomUUID(), SensorTypeEvent.TemperatureEvent, "Temperature: " + temperature, java.time.LocalDateTime.now());
-            handler.emit(event);
+            handler.emitEvent(event);
         }
     }
 }

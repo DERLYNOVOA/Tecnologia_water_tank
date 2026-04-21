@@ -1,10 +1,9 @@
 package Commands;
 
+import Services.AppContext;
 
 import java.util.HashMap;
 import java.util.Map;
-import Services.AppContext;
-
 
 public class CommandHandler {
     private Map<String, Command> commands = new HashMap<>();

@@ -1,5 +1,6 @@
 package Services;
 
+import Domain.EventHandler;
 import Domain.WaterTank;
 
 public class AppContext {
@@ -16,11 +17,9 @@ public class AppContext {
     public WaterTank getTank() {
         return tank;
     }
-
     public Authenticator getAuth() {
         return auth;
     }
-
     public EventHandler getEvents() {
         return events;
     }

@@ -21,7 +21,6 @@ public class Event {
     public UUID getId() {
         return id;
     }
-
     public void setId(UUID id) {
         this.id = id;
     }
@@ -29,7 +28,6 @@ public class Event {
     public SensorTypeEvent getType() {
         return type;
     }
-
     public void setType(SensorTypeEvent type) {
         this.type = type;
     }
@@ -37,7 +35,6 @@ public class Event {
     public String getDetail() {
         return detail;
     }
-
     public void setDetail(String detail) {
         this.detail = detail;
     }
@@ -45,7 +42,6 @@ public class Event {
     public LocalDateTime getTimestamp() {
         return timestamp;
     }
-
     public void setTimestamp(LocalDateTime timestamp) {
         this.timestamp = timestamp;
     }

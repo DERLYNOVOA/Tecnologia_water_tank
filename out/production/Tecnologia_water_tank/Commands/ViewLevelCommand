@@ -1,0 +1,28 @@
+package Commands;
+
+import Domain.WaterTank;
+
+
+public class ViewLevelCommand implements Command {
+
+    private final WaterTank waterTank;
+
+    public ViewLevelCommand(WaterTank waterTank) {
+        this.waterTank = waterTank;
+    }
+
+    @Override
+    public void execute(String arg) throws Exception {
+        float level = waterTank.getWaterManager().getWaterSensor().read();
+        float percent = waterTank.calculateWaterVolumePercentage(level);
+        boolean pumpOn = waterTank.getWaterManager().isActive();
+
+        System.out.println("================================");
+        System.out.println("  ESTADO DEL TANQUE");
+        System.out.println("================================");
+        System.out.printf("  Nivel:    %.2f cm (%.1f%%)%n", level, percent);
+        System.out.println("  Bomba:    " + (pumpOn ? "ENCENDIDA âœ…" : "APADA Áï¿½"));
+        System.out.println("================================");
+    }
+}
+

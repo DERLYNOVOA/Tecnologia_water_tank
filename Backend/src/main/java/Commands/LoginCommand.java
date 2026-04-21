@@ -1,8 +1,8 @@
 package Commands;
 
-import java.util.Scanner;
 import Services.AppContext;
 
+import java.util.Scanner;
 
 public class LoginCommand implements Command {
     @Override
