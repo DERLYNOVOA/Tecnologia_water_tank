@@ -6,10 +6,6 @@ import java.io.PrintWriter;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-/**
- * Implementación de IRepositoryLog que persiste en archivo de texto plano.
- * Guarda logs en historial_tanque.txt con formato: [fecha hora] mensaje
- */
 public class FileLogRepository implements IRepositoryLog {
 
     private static final String LOG_FILE = "./historial_tanque.txt";

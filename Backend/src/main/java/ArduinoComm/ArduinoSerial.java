@@ -22,7 +22,7 @@ public class ArduinoSerial {
         if (puertoArduino.openPort()) {
             System.out.println("🔌 CONEXIÓN SERIAL: Arduino conectado exitosamente.");
 
-            // 1. EL TRUCO: Darle 2 segundos al Arduino para que se reinicie bien
+            //Darle 2 segundos al Arduino para que se reinicie bien
             try {
                 System.out.println("⏳ Esperando a que el Arduino despierte...");
                 Thread.sleep(2000);
@@ -37,20 +37,19 @@ public class ArduinoSerial {
             Scanner scanner = new Scanner(puertoArduino.getInputStream());
 
             while (scanner.hasNextLine()) {
-                // 2. Leemos la línea cruda
+                // Leemos la línea cruda
                 String lineaRecibida = scanner.nextLine().trim();
 
                 // Ignoramos si llega una línea en blanco
                 if (lineaRecibida.isEmpty()) continue;
 
                 try {
-                    System.out.println("📡 RAW: [" + lineaRecibida + "]");
+                    //System.out.println("📡 RAW: [" + lineaRecibida + "]");
 
                     float distanciaLeida = Float.parseFloat(lineaRecibida);
                     sensorDelDominio.setWaterLevel(distanciaLeida);
 
                 } catch (NumberFormatException e) {
-                    // 4. SI HAY ERROR, QUE NOS LO DIGA EN ROJO
                     System.err.println("⚠️ Error convirtiendo a número. Basura recibida: [" + lineaRecibida + "]");
                 }
             }
@@ -60,7 +59,7 @@ public class ArduinoSerial {
         hiloEscucha.start();
     }
 
-    // Buena práctica: Método para apagar la conexión cuando se cierre el programa
+    //Método para apagar la conexión cuando se cierre el programa
     public void cerrarConexion() {
         if (puertoArduino.isOpen()) {
             puertoArduino.closePort();
@@ -68,7 +67,7 @@ public class ArduinoSerial {
         }
     }
 
-    // Método nuevo para enviarle órdenes al Arduino
+    // Método para enviarle órdenes al Arduino
     public void enviarComando(String comando) {
         if (puertoArduino != null && puertoArduino.isOpen()) {
             byte[] bytes = comando.getBytes();

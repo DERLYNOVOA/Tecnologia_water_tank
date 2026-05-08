@@ -20,17 +20,14 @@ public class Main {
 
         // 2. Dominio y Eventos
         EventHandler handler = new EventHandler();
-        // Main.java
-        WaterTank miTanque = new WaterTank(15.0f); // ← tu rango real de prueba
+        WaterTank miTanque = new WaterTank(15.0f); //rango real de prueba
         WaterLevelSensor miSensor = new WaterLevelSensor(handler);
 
-        // --- EL CAMBIO CLAVE PARA EL HARDWARE ---
         // 3. Hardware (Creamos la conexión PRIMERO)
         ArduinoSerial conexion = new ArduinoSerial("COM3", miSensor);
 
         // 4. Actuadores (La bomba ahora recibe la conexión para prender el LED)
         IPump miBomba = new Pump(conexion);
-        // ----------------------------------------
 
         // 5. El Cerebro (El Manager)
         WaterLevelManager manager = new WaterLevelManager(miBomba, miSensor, miTanque, handler, logger);
@@ -58,4 +55,5 @@ public class Main {
         System.out.println("✅ Sistema finalizado.");
         System.exit(0);
     }
+
 }

@@ -14,8 +14,7 @@ public class LoginCommand implements Command {
         String password = scanner.nextLine();
 
         if (context.getAuth().login(userName, password)) {
-            System.out.println("✅ Login exitoso.");
-            // PERSISTENCIA DETALLADA
+            System.out.println("Login exitoso.");
             context.getLogger().saveLog("[AUTH] Usuario " + userName + " inició sesión.");
         } else {
             System.out.println("Login fallido. Usuario o contraseña incorrectos");

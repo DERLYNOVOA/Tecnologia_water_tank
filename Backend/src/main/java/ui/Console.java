@@ -100,7 +100,7 @@ public class Console {
             }
         } catch (NumberFormatException ignored) {}
 
-        return input; // texto directo como fallback
+        return input;
     }
 
     // ══════════════════════════════════════════════════════

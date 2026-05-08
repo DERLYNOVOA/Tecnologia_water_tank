@@ -5,9 +5,8 @@ import ArduinoComm.ArduinoSerial;
 
 public class Pump implements IPump {
     private boolean isActive;
-    private ArduinoSerial conexion; // Usaremos la conexión
+    private ArduinoSerial conexion;
 
-    // Ahora recibe la conexión en el constructor
     public Pump(ArduinoSerial conexion) {
         this.isActive = false;
         this.conexion = conexion;
@@ -16,13 +15,13 @@ public class Pump implements IPump {
     @Override
     public void turnOn() {
         isActive = true;
-        if (conexion != null) conexion.enviarComando("1"); // Le grita al Arduino: ¡Prende!
+        if (conexion != null) conexion.enviarComando("1");
     }
 
     @Override
     public void turnOff() {
         isActive = false;
-        if (conexion != null) conexion.enviarComando("0"); // Le grita al Arduino: ¡Apaga!
+        if (conexion != null) conexion.enviarComando("0");
     }
 
     @Override

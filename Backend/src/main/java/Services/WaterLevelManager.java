@@ -11,27 +11,27 @@ import Repository.IRepositoryLog;
 
 public class WaterLevelManager extends SensorLevelManager implements EventListener, IWaterSystemStatus {
 
-    private final IPump            pump;
+    private final IPump pump;
     private final WaterLevelSensor waterSensor;
-    private final WaterTank        tank;
-    private final IRepositoryLog   logger;
+    private final WaterTank tank;
+    private final IRepositoryLog logger;
 
     public WaterLevelManager(IPump pump, WaterLevelSensor sensor, WaterTank tank, EventHandler handler, IRepositoryLog logger) {
         super(20.0f, 80.0f);
-        this.pump        = pump;
+        this.pump = pump;
         this.waterSensor = sensor;
-        this.tank        = tank;
-        this.logger      = logger;
+        this.tank = tank;
+        this.logger = logger;
         handler.subscribe(this);
     }
 
-    // ── EventListener ─────────────────────────────────────
+    // EventListener
     @Override
     public void onEvent(Event event) {
         run();
     }
 
-    // ── Lógica de automatización ───────────────────────────
+    // Lógica de automatización
     @Override
     public void run() {
         if (!waterSensor.hasData()) return;
@@ -40,21 +40,16 @@ public class WaterLevelManager extends SensorLevelManager implements EventListen
 
         if (porcentaje >= 90.0f && pump.getStatus()) {
             pump.turnOff();
-            logger.saveLog(
-                    "[SEGURIDAD] Apagado automático. Nivel: "
-                            + porcentaje + "%. Distancia: " + distanciaActual + "cm."
-            );
-            // ← sin System.out: la UI leerá el estado vía IWaterSystemStatus
+            logger.saveLog("[SEGURIDAD] Apagado automático. Nivel: " + porcentaje + "%. Distancia: " + distanciaActual + "cm.");
+
 
         } else if (porcentaje <= 10.0f && !pump.getStatus()) {
             pump.turnOn();
-            logger.saveLog(
-                    "[AUTO] Encendido por nivel bajo. Nivel: " + porcentaje + "%."
-            );
+            logger.saveLog("[AUTO] Encendido por nivel bajo. Nivel: " + porcentaje + "%.");
         }
     }
 
-    // ── IWaterSystemStatus (solo lectura para la UI) ───────
+    //IWaterSystemStatus para lectura para la UI
     @Override
     public float getCurrentDistance() {
         return waterSensor.getWaterLevel();
@@ -70,7 +65,7 @@ public class WaterLevelManager extends SensorLevelManager implements EventListen
         return pump.getStatus();
     }
 
-    @Override                              // ← añade esto al final
+    @Override
     public boolean hasData() {
         return waterSensor.hasData();
     }
