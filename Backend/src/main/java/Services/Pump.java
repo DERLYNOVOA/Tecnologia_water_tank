@@ -1,11 +1,11 @@
 package Services;
 
-import Domain.IPump;
 import ArduinoComm.ArduinoSerial;
+import Domain.IPump;
 
 public class Pump implements IPump {
     private boolean isActive;
-    private ArduinoSerial conexion;
+    private final ArduinoSerial conexion;
 
     public Pump(ArduinoSerial conexion) {
         this.isActive = false;

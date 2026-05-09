@@ -6,8 +6,8 @@ import java.util.Scanner;
 
 public class ArduinoSerial {
 
-    private SerialPort puertoArduino;
-    private WaterLevelSensor sensorDelDominio;
+    private final SerialPort puertoArduino;
+    private final WaterLevelSensor sensorDelDominio;
 
     // Constructor: Le pasamos el nombre del puerto (ej. "COM3") y el sensor que vamos a actualizar
     public ArduinoSerial(String nombrePuerto, WaterLevelSensor sensor) {
@@ -34,26 +34,25 @@ public class ArduinoSerial {
         }
 
         Thread hiloEscucha = new Thread(() -> {
-            Scanner scanner = new Scanner(puertoArduino.getInputStream());
+            try (Scanner scanner = new Scanner(puertoArduino.getInputStream())) {
+                while (scanner.hasNextLine()) {
+                    // Leemos la línea cruda
+                    String lineaRecibida = scanner.nextLine().trim();
 
-            while (scanner.hasNextLine()) {
-                // Leemos la línea cruda
-                String lineaRecibida = scanner.nextLine().trim();
+                    // Ignoramos si llega una línea en blanco
+                    if (lineaRecibida.isEmpty()) continue;
 
-                // Ignoramos si llega una línea en blanco
-                if (lineaRecibida.isEmpty()) continue;
+                    try {
+                        //System.out.println("📡 RAW: [" + lineaRecibida + "]");
 
-                try {
-                    //System.out.println("📡 RAW: [" + lineaRecibida + "]");
+                        float distanciaLeida = Float.parseFloat(lineaRecibida);
+                        sensorDelDominio.setWaterLevel(distanciaLeida);
 
-                    float distanciaLeida = Float.parseFloat(lineaRecibida);
-                    sensorDelDominio.setWaterLevel(distanciaLeida);
-
-                } catch (NumberFormatException e) {
-                    System.err.println("⚠️ Error convirtiendo a número. Basura recibida: [" + lineaRecibida + "]");
+                    } catch (NumberFormatException e) {
+                        System.err.println("⚠️ Error convirtiendo a número. Basura recibida: [" + lineaRecibida + "]");
+                    }
                 }
             }
-            scanner.close();
         });
 
         hiloEscucha.start();

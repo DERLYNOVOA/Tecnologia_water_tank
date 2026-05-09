@@ -1,10 +1,10 @@
 package Domain;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class EventHandler {
-    private List<EventListener> listeners = new ArrayList<>();
+    private List<EventListener> listeners = new CopyOnWriteArrayList<>();
 
     public void subscribe(EventListener listener) {
         listeners.add(listener);

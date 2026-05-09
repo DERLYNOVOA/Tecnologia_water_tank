@@ -1,12 +1,12 @@
 package Services;
 
-import Domain.EventListener;
 import Domain.Event;
+import Domain.EventHandler;
+import Domain.EventListener;
 import Domain.IPump;
 import Domain.IWaterSystemStatus;
 import Domain.WaterLevelSensor;
 import Domain.WaterTank;
-import Domain.EventHandler;
 import Repository.IRepositoryLog;
 
 public class WaterLevelManager extends SensorLevelManager implements EventListener, IWaterSystemStatus {
@@ -25,13 +25,11 @@ public class WaterLevelManager extends SensorLevelManager implements EventListen
         handler.subscribe(this);
     }
 
-    // EventListener
     @Override
     public void onEvent(Event event) {
         run();
     }
 
-    // Lógica de automatización
     @Override
     public void run() {
         if (!waterSensor.hasData()) return;
@@ -49,7 +47,6 @@ public class WaterLevelManager extends SensorLevelManager implements EventListen
         }
     }
 
-    //IWaterSystemStatus para lectura para la UI
     @Override
     public float getCurrentDistance() {
         return waterSensor.getWaterLevel();
