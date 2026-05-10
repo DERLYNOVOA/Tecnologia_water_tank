@@ -37,7 +37,7 @@ Backend/src/main/java/
 │   ├── InMemoryUserRepository.java     # Implementación concreta - INFRAESTRUCTURA
 │   ├── RepositoryLog.java              # Interface de contrato ✓
 │   └── UserRepository.java             # Interface de contrato ✓
-├── Services/
+├── Domain.service/
 │   ├── AppContext.java                 # Application Service ✓
 │   ├── AuthenticationService.java      # Application Service ✓
 │   ├── Authenticator.java              # Application Service ✓
@@ -56,7 +56,7 @@ Backend/src/main/java/
 │   ├── ViewLevelCommand.java           # Command Implementation ✓
 │   ├── ViewLogsCommand.java            # Command Implementation ✓
 │   └── WaterLevelManager.java          # Application Service ✓
-└── ui/
+└── presentation/
     └── Console.java                    # Presentation Layer ✓
 ```
 
@@ -77,12 +77,12 @@ Backend/src/main/java/
 src/main/java/com/water/tank/           # Package base del dominio
 ├── domain/                             # CAPA DE DOMINIO
 │   ├── model/                          # Entidades y Value Objects
-│   ├── service/                        # Interfaces de dominio (contratos)
+│   ├── Domain.service/                        # Interfaces de dominio (contratos)
 │   └── event/                          # Eventos de dominio
 ├── application/                        # CAPA DE APLICACIÓN
 │   ├── command/                        # Patrón Command
 │   ├── query/                          # Patrón Query (futuro)
-│   ├── service/                        # Application Services
+│   ├── Domain.service/                        # Application Domain.service
 │   └── port/                           # Ports (interfaces hacia infraestructura)
 ├── infrastructure/                     # CAPA DE INFRAESTRUCTURA
 │   ├── persistence/                    # Repositories concretos
@@ -121,11 +121,11 @@ Backend/src/main/java/
 │   │   ├── WaterLevelSensor.java
 │   │   ├── WaterTank.java
 │   │   └── Alarm.java                    # MOVIDO desde Main/
-│   ├── service/
+│   ├── Domain.service/
 │   │   ├── IPump.java
 │   │   ├── IWaterSystemStatus.java
 │   │   ├── EventListener.java
-│   │   ├── PasswordHasher.java           # MOVIDO desde Services/
+│   │   ├── PasswordHasher.java           # MOVIDO desde Domain.service/
 │   │   ├── RepositoryLog.java            # MOVIDO desde Repository/
 │   │   └── UserRepository.java           # MOVIDO desde Repository/
 │   └── event/
@@ -141,7 +141,7 @@ Backend/src/main/java/
 │   │   ├── PumpOffCommand.java
 │   │   ├── ViewLevelCommand.java
 │   │   └── ViewLogsCommand.java
-│   ├── service/
+│   ├── Domain.service/
 │   │   ├── AppContext.java
 │   │   ├── AuthenticationService.java
 │   │   ├── Authenticator.java
@@ -159,9 +159,9 @@ Backend/src/main/java/
 │   │   └── FileLogRepository.java        # MOVIDO desde Repository/
 │   ├── hardware/
 │   │   ├── ArduinoSerial.java            # MOVIDO desde ArduinoComm/
-│   │   └── Pump.java                     # MOVIDO desde Services/
+│   │   └── Pump.java                     # MOVIDO desde Domain.service/
 │   ├── security/
-│   │   └── SimplePasswordHasher.java     # MOVIDO desde Services/
+│   │   └── SimplePasswordHasher.java     # MOVIDO desde Domain.service/
 │   ├── external/
 │   │   ├── ConsoleInputProvider.java     # NUEVO - implementación de InputProvider
 │   │   └── ConsoleOutputProvider.java    # NUEVO - implementación de OutputProvider
@@ -169,7 +169,7 @@ Backend/src/main/java/
 │       └── AppConfig.java                # NUEVO - configuración centralizada
 ├── presentation/
 │   └── console/
-│       └── Console.java                  # MOVIDO desde ui/
+│       └── Console.java                  # MOVIDO desde presentation/
 └── Main.java                             # MOVIDO al raíz, renombrado a WaterTankApplication.java
 ```
 
@@ -183,8 +183,8 @@ Backend/src/main/java/
 |-------|---------------|---------------|---------------|
 | **ArduinoSerial** | `ArduinoComm/ArduinoSerial.java` | `infrastructure/hardware/ArduinoSerial.java` | Es implementación concreta de comunicación serial (tecnología específica) |
 | **FileLogRepository** | `Repository/FileLogRepository.java` | `infrastructure/persistence/FileLogRepository.java` | Implementación concreta de persistencia en archivo |
-| **SimplePasswordHasher** | `Services/SimplePasswordHasher.java` | `infrastructure/security/SimplePasswordHasher.java` | Implementación concreta de algoritmo de hashing |
-| **Pump** | `Services/Pump.java` | `infrastructure/hardware/Pump.java` | Implementación concreta de IPump (hardware/controlador físico) |
+| **SimplePasswordHasher** | `Domain.service/SimplePasswordHasher.java` | `infrastructure/security/SimplePasswordHasher.java` | Implementación concreta de algoritmo de hashing |
+| **Pump** | `Domain.service/Pump.java` | `infrastructure/hardware/Pump.java` | Implementación concreta de IPump (hardware/controlador físico) |
 
 ### 3.2 Movimientos Adicionales Recomendados
 
@@ -193,17 +193,17 @@ Backend/src/main/java/
 - `Alarm.java` → `domain/model/Alarm.java` (es una entidad de dominio)
 
 #### **Desde Repository:**
-- `RepositoryLog.java` → `domain/service/RepositoryLog.java` (interface de contrato)
-- `UserRepository.java` → `domain/service/UserRepository.java` (interface de contrato)
+- `RepositoryLog.java` → `domain/Domain.service/RepositoryLog.java` (interface de contrato)
+- `UserRepository.java` → `domain/Domain.service/UserRepository.java` (interface de contrato)
 
-#### **Desde Services:**
-- `PasswordHasher.java` → `domain/service/PasswordHasher.java` (interface de contrato)
+#### **Desde Domain.service:**
+- `PasswordHasher.java` → `domain/Domain.service/PasswordHasher.java` (interface de contrato)
 - `Command.java` → `application/command/Command.java` (parte del patrón Command)
 - `CommandHandler.java` → `application/command/CommandHandler.java`
 - Todos los `*Command.java` → `application/command/`
-- Todos los `*Service.java` → `application/service/`
+- Todos los `*Service.java` → `application/Domain.service/`
 
-#### **Desde ui:**
+#### **Desde presentation:**
 - `Console.java` → `presentation/console/Console.java`
 
 #### **Desde Main:**
@@ -232,9 +232,9 @@ Backend/src/main/java/
 
 | Clase | ¿Por Qué Sale? | Nuevo Destino |
 |-------|----------------|----------------|
-| **EventHandler** | Es una implementación del patrón Observer. El dominio debe definir interfaces, no implementaciones. | `domain/event/` (si es modelo) o `application/service/` |
+| **EventHandler** | Es una implementación del patrón Observer. El dominio debe definir interfaces, no implementaciones. | `domain/event/` (si es modelo) o `application/Domain.service/` |
 | **EventListener** | Es una interface técnica del patrón Observer, no una regla de negocio pura. | `application/port/outbound/` como contrato hacia aplicación |
-| **Alarm** | Es una entidad que depende de infraestructura (sonido, notificaciones). Debería ser un servicio de aplicación. | `application/service/` o `infrastructure/external/` |
+| **Alarm** | Es una entidad que depende de infraestructura (sonido, notificaciones). Debería ser un servicio de aplicación. | `application/Domain.service/` o `infrastructure/external/` |
 
 ### 4.2 Domain Después de la Limpieza
 
@@ -248,10 +248,10 @@ domain/
 │   ├── User.java
 │   ├── WaterLevelSensor.java
 │   └── WaterTank.java
-├── service/
+├── Domain.service/
 │   ├── IPump.java
 │   ├── IWaterSystemStatus.java
-│   └── PasswordHasher.java      # MOVIDO desde Services
+│   └── PasswordHasher.java      # MOVIDO desde Domain.service
 └── event/
     ├── SensorTypeEvent.java
     └── RoleType.java
@@ -267,14 +267,14 @@ domain/
 
 ```
 ┌─────────────────────────────────┐
-│         ui (Presentation)       │
+│         presentation (Presentation)       │
 │                                 │
 │  Console                        │
 └─────────────────────────────────┘
                 │
                 ▼
 ┌─────────────────────────────────┐
-│      Services (Application)     │
+│      Domain.service (Application)     │
 │                                 │
 │  CommandHandler, AuthService,   │
 │  Pump, WaterLevelManager        │
@@ -306,7 +306,7 @@ domain/
 
 **Problemas:**
 - ❌ Domain depende de Repository (interfaces mezcladas)
-- ❌ Services conoce implementaciones concretas
+- ❌ Domain.service conoce implementaciones concretas
 - ❌ Acoplamiento alto entre capas
 - ❌ Domain "sucio" con implementaciones
 
@@ -321,7 +321,7 @@ domain/
                 │                                 │
                 ▼                                 ▼
 ┌─────────────────────────────────┐       ┌─────────────────────────────────┐
-│     application/service         │◄──────┤  infrastructure/persistence   │
+│     application/Domain.service         │◄──────┤  infrastructure/persistence   │
 │                                 │       │                                 │
 │  CommandHandler, AuthService,   │       │  InMemoryUserRepository,      │
 │  WaterLevelManager              │       │  FileLogRepository            │
@@ -377,7 +377,7 @@ domain/
 2. Crear archivo `package-info.java` en cada paquete con descripción
 
 #### **Fase 2: Migración de Interfaces (1 hora)**
-1. Mover interfaces de contrato a `domain/service/`
+1. Mover interfaces de contrato a `domain/Domain.service/`
 2. Actualizar imports en implementaciones
 
 #### **Fase 3: Migración de Implementaciones (1 hora)**
@@ -416,8 +416,1329 @@ domain/
 
 ---
 
+## 6. REFACTORIZACIONES DE CÓDIGO REQUERIDAS (más allá del empaquetado)
+
+### Refactorización 1: Patrón Strategy para Bombeo
+
+**Problema:** `WaterLevelManager` tiene lógica de bombeo hardcodeada con umbrales fijos (10% encender, 90% apagar). No permite diferentes estrategias de control automático ni es testable.
+
+**Principios que viola:** 
+- OCP (Open/Closed Principle) - Cerrado a nuevas estrategias
+- DIP (Dependency Inversion Principle) - Depende de lógica concreta
+- SRP (Single Responsibility Principle) - Mezcla decisión + ejecución
+
+---
+
+**Archivos involucrados:**
+- `domain/service/PumpStrategy.java` (NUEVA)
+- `application/service/ConservativePumpStrategy.java` (NUEVA)
+- `application/service/AggressivePumpStrategy.java` (NUEVA)
+- `application/service/WaterLevelManager.java` (REFACTORIZADA)
+- `WaterTankApplication.java` (Main.java refactorizado)
+
+---
+
+**Código antes - WaterLevelManager.java:**
+```java
+public class WaterLevelManager extends SensorLevelManager implements EventListener, IWaterSystemStatus {
+    private final IPump pump;
+    private final WaterLevelSensor waterSensor;
+    private final WaterTank tank;
+    private final RepositoryLog logger;
+
+    @Override
+    public void run() {
+        if (!waterSensor.hasData()) return;
+        float distanciaActual = waterSensor.getWaterLevel();
+        float porcentaje = tank.calculatePercentage(distanciaActual);
+
+        // ❌ LÓGICA HARDCODEADA - No extensible
+        if (porcentaje >= 90.0f && pump.getStatus()) {
+            pump.turnOff();
+            logger.saveLog("[SEGURIDAD] Apagado automático. Nivel: " + porcentaje + "%.");
+        } else if (porcentaje <= 10.0f && !pump.getStatus()) {
+            pump.turnOn();
+            logger.saveLog("[AUTO] Encendido por nivel bajo. Nivel: " + porcentaje + "%.");
+        }
+    }
+}
+```
+
+---
+
+**Código después - Paso 1: Interface PumpStrategy en domain/service/**
+
+```java
+package domain.service;
+
+/**
+ * Contrato para estrategias de control automático de bomba.
+ * Permite diferentes algoritmos de decisión sin modificar WaterLevelManager.
+ */
+public interface PumpStrategy {
+    /**
+     * Determina si la bomba debe encenderse.
+     * @param currentPercentage Porcentaje actual del tanque
+     * @param isPumpActive Estado actual de la bomba
+     * @return true si la bomba debe encenderse
+     */
+    boolean shouldTurnOn(float currentPercentage, boolean isPumpActive);
+
+    /**
+     * Determina si la bomba debe apagarse.
+     * @param currentPercentage Porcentaje actual del tanque
+     * @param isPumpActive Estado actual de la bomba
+     * @return true si la bomba debe apagarse
+     */
+    boolean shouldTurnOff(float currentPercentage, boolean isPumpActive);
+
+    /**
+     * Obtiene el nombre de la estrategia.
+     * @return Nombre descriptivo
+     */
+    String getName();
+}
+```
+
+---
+
+**Código después - Paso 2: ConservativePumpStrategy en application/service/**
+
+```java
+package application.service;
+
+import domain.service.PumpStrategy;
+
+/**
+ * Estrategia conservadora: umbrales 10% (encender) y 90% (apagar).
+ * Minimiza activaciones, ideal para ahorrar energía.
+ */
+public class ConservativePumpStrategy implements PumpStrategy {
+    private static final float TURN_ON_THRESHOLD = 10.0f;
+    private static final float TURN_OFF_THRESHOLD = 90.0f;
+
+    @Override
+    public boolean shouldTurnOn(float currentPercentage, boolean isPumpActive) {
+        return currentPercentage <= TURN_ON_THRESHOLD && !isPumpActive;
+    }
+
+    @Override
+    public boolean shouldTurnOff(float currentPercentage, boolean isPumpActive) {
+        return currentPercentage >= TURN_OFF_THRESHOLD && isPumpActive;
+    }
+
+    @Override
+    public String getName() {
+        return "Conservative (10%-90%)";
+    }
+}
+```
+
+---
+
+**Código después - Paso 3: AggressivePumpStrategy en application/service/**
+
+```java
+package application.service;
+
+import domain.service.PumpStrategy;
+
+/**
+ * Estrategia agresiva: umbrales 20% (encender) y 80% (apagar).
+ * Mantiene el tanque más lleno, más activaciones.
+ */
+public class AggressivePumpStrategy implements PumpStrategy {
+    private static final float TURN_ON_THRESHOLD = 20.0f;
+    private static final float TURN_OFF_THRESHOLD = 80.0f;
+
+    @Override
+    public boolean shouldTurnOn(float currentPercentage, boolean isPumpActive) {
+        return currentPercentage <= TURN_ON_THRESHOLD && !isPumpActive;
+    }
+
+    @Override
+    public boolean shouldTurnOff(float currentPercentage, boolean isPumpActive) {
+        return currentPercentage >= TURN_OFF_THRESHOLD && isPumpActive;
+    }
+
+    @Override
+    public String getName() {
+        return "Aggressive (20%-80%)";
+    }
+}
+```
+
+---
+
+**Código después - Paso 4: WaterLevelManager refactorizado en application/service/**
+
+```java
+package application.service;
+
+import domain.event.Event;
+import domain.event.EventListener;
+import domain.model.WaterLevelSensor;
+import domain.model.WaterTank;
+import domain.service.IPump;
+import domain.service.IWaterSystemStatus;
+import domain.service.PumpStrategy;
+import domain.service.RepositoryLog;
+
+/**
+ * Gestor de nivel de agua con estrategia inyectable.
+ * Responsabilidad única: reaccionar a eventos y aplicar estrategia de bombeo.
+ */
+public class WaterLevelManager extends SensorLevelManager implements EventListener, IWaterSystemStatus {
+    private final IPump pump;
+    private final WaterLevelSensor waterSensor;
+    private final WaterTank tank;
+    private final RepositoryLog logger;
+    private final PumpStrategy pumpStrategy;  // ✅ INYECTADA
+
+    public WaterLevelManager(
+            IPump pump,
+            WaterLevelSensor sensor,
+            WaterTank tank,
+            EventHandler handler,
+            RepositoryLog logger,
+            PumpStrategy pumpStrategy) {  // ✅ NUEVO PARÁMETRO
+        super(20.0f, 80.0f);
+        this.pump = pump;
+        this.waterSensor = sensor;
+        this.tank = tank;
+        this.logger = logger;
+        this.pumpStrategy = pumpStrategy;  // ✅ ASIGNACIÓN
+        handler.subscribe(this);
+    }
+
+    @Override
+    public void onEvent(Event event) {
+        run();
+    }
+
+    @Override
+    public void run() {
+        if (!waterSensor.hasData()) return;
+        
+        float distanciaActual = waterSensor.getWaterLevel();
+        float porcentaje = tank.calculatePercentage(distanciaActual);
+
+        // ✅ USA LA ESTRATEGIA INYECTADA - Completamente desacoplado
+        if (pumpStrategy.shouldTurnOn(porcentaje, pump.getStatus())) {
+            pump.turnOn();
+            logger.saveLog("[AUTO] Encendido por estrategia " + pumpStrategy.getName() 
+                + ". Nivel: " + porcentaje + "%.");
+        } else if (pumpStrategy.shouldTurnOff(porcentaje, pump.getStatus())) {
+            pump.turnOff();
+            logger.saveLog("[SEGURIDAD] Apagado por estrategia " + pumpStrategy.getName() 
+                + ". Nivel: " + porcentaje + "%.");
+        }
+    }
+
+    // ...resto de métodos (IWaterSystemStatus) igual...
+}
+```
+
+---
+
+**Impacto en Main.java (WaterTankApplication.java refactorizado):**
+
+```java
+// En el método main():
+// ... antes del WaterLevelManager ...
+
+// ✅ Crear estrategia - Por defecto ConservativePumpStrategy
+PumpStrategy pumpStrategy = new ConservativePumpStrategy();
+// O si quisieras agresiva: new AggressivePumpStrategy()
+
+// ✅ Pasar estrategia al manager
+WaterLevelManager manager = new WaterLevelManager(
+    miBomba, 
+    miSensor, 
+    miTanque, 
+    handler, 
+    logger,
+    pumpStrategy  // ✅ NUEVO PARÁMETRO
+);
+```
+
+**Principios que resuelve:**
+- ✅ **OCP** - Nuevas estrategias sin modificar `WaterLevelManager`
+- ✅ **DIP** - Depende de `PumpStrategy` interface, no de lógica concreta
+- ✅ **SRP** - `WaterLevelManager` solo reacciona a eventos, `PumpStrategy` decide
+- ✅ **Polimorfismo (GRASP)** - Estrategias intercambiables en runtime
+
+---
+
+### Refactorización 2: Patrón Observer Completo - Alarmas y Logging
+
+**Problema:** `Alarm` existe pero no implementa `EventListener`, no está suscrita, y no reacciona a eventos. No hay listener que loguee eventos automáticamente.
+
+**Principios que viola:**
+- Observer incompleto (puntuación 5/10)
+- SRP - Alarmas sin responsabilidad clara
+- Bajo acoplamiento - Alarmas no integradas al sistema de eventos
+
+---
+
+**Archivos involucrados:**
+- `domain/service/IAlarm.java` (NUEVA)
+- `domain/model/Alarm.java` (REFACTORIZADA)
+- `application/service/LoggerEventListener.java` (NUEVA)
+- `WaterTankApplication.java` (Main.java refactorizado)
+
+---
+
+**Código después - Paso 1: Interface IAlarm en domain/service/**
+
+```java
+package domain.service;
+
+/**
+ * Contrato para sistemas de alarma.
+ * Permite notificar al usuario de situaciones críticas.
+ */
+public interface IAlarm {
+    /**
+     * Activa la alarma.
+     */
+    void turnOn();
+
+    /**
+     * Desactiva la alarma.
+     */
+    void turnOff();
+
+    /**
+     * Obtiene el estado de la alarma.
+     * @return true si está activa
+     */
+    boolean isActive();
+
+    /**
+     * Establece el volumen de la alarma.
+     * @param volume Volumen de 0 a 100
+     */
+    void setVolume(int volume);
+
+    /**
+     * Obtiene el volumen actual.
+     * @return Volumen actual
+     */
+    int getVolume();
+}
+```
+
+---
+
+**Código después - Paso 2: Alarm refactorizado en domain/model/**
+
+```java
+package domain.model;
+
+import domain.event.Event;
+import domain.event.EventListener;
+import domain.event.SensorTypeEvent;
+import domain.service.IAlarm;
+
+/**
+ * Alarma que reacciona a eventos críticos del sistema.
+ * Implementa both EventListener (patrón Observer) e IAlarm (contrato de dominio).
+ */
+public class Alarm implements EventListener, IAlarm {
+    private boolean isActive;
+    private int volume;
+    private static final float CRITICAL_LOW_PERCENTAGE = 5.0f;
+    private static final float CRITICAL_HIGH_PERCENTAGE = 95.0f;
+
+    public Alarm() {
+        this.isActive = false;
+        this.volume = 50;  // Volumen por defecto
+    }
+
+    @Override
+    public void onEvent(Event event) {
+        // ✅ Reacciona a eventos de nivel de agua
+        if (event.getType() == SensorTypeEvent.WaterLevelEvent) {
+            String detail = event.getDetail();
+            
+            // Parsea "WaterLevel: XX.XX" para obtener el porcentaje
+            float percentage = extractPercentageFromDetail(detail);
+            
+            // Activa alarma si es crítico
+            if (percentage < CRITICAL_LOW_PERCENTAGE || percentage > CRITICAL_HIGH_PERCENTAGE) {
+                this.turnOn();
+                System.err.println("🚨 ALARMA CRÍTICA! Nivel: " + percentage + "%");
+            } else {
+                this.turnOff();
+            }
+        }
+    }
+
+    private float extractPercentageFromDetail(String detail) {
+        // Detail es "WaterLevel: XX.XX"
+        try {
+            String[] parts = detail.split(": ");
+            return Float.parseFloat(parts[1]);
+        } catch (Exception e) {
+            return 50.0f;  // Default si hay error
+        }
+    }
+
+    @Override
+    public void turnOn() {
+        isActive = true;
+    }
+
+    @Override
+    public void turnOff() {
+        isActive = false;
+    }
+
+    @Override
+    public boolean isActive() {
+        return isActive;
+    }
+
+    @Override
+    public void setVolume(int volume) {
+        this.volume = Math.max(0, Math.min(100, volume));
+    }
+
+    @Override
+    public int getVolume() {
+        return volume;
+    }
+}
+```
+
+---
+
+**Código después - Paso 3: LoggerEventListener en application/service/**
+
+```java
+package application.service;
+
+import domain.event.Event;
+import domain.event.EventListener;
+import domain.service.RepositoryLog;
+
+/**
+ * Listener que loguea automáticamente todos los eventos del sistema.
+ * Implementa patrón Observer para auditoría desacoplada.
+ */
+public class LoggerEventListener implements EventListener {
+    private final RepositoryLog logger;
+
+    public LoggerEventListener(RepositoryLog logger) {
+        this.logger = logger;
+    }
+
+    @Override
+    public void onEvent(Event event) {
+        // ✅ Loguea automáticamente sin que publicadores lo conozcan
+        String logMessage = String.format(
+            "[EVENT] %s - Detail: %s - ID: %s",
+            event.getType().name(),
+            event.getDetail(),
+            event.getId()
+        );
+        logger.saveLog(logMessage);
+    }
+}
+```
+
+---
+
+**Impacto en Main.java (WaterTankApplication.java refactorizado):**
+
+```java
+// En el método main():
+// ... después de crear handler y sensores ...
+
+// ✅ Crear y suscribir alarma
+Alarm alarm = new Alarm();
+handler.subscribe(alarm);
+
+// ✅ Crear y suscribir listener de logging automático
+LoggerEventListener loggerListener = new LoggerEventListener(logger);
+handler.subscribe(loggerListener);
+
+// ✅ Crear manager (que se auto-suscribe en su constructor)
+WaterLevelManager manager = new WaterLevelManager(
+    miBomba, 
+    miSensor, 
+    miTanque, 
+    handler, 
+    logger,
+    pumpStrategy
+);
+
+// Ahora el sistema tiene múltiples listeners reaccionando a eventos:
+// - WaterLevelManager: ejecuta lógica de bombeo
+// - Alarm: activa alarma si es crítico
+// - LoggerEventListener: registra automáticamente
+```
+
+**Principios que resuelve:**
+- ✅ **Observer (GoF)** - Sistema completo de publicador/suscriptor
+- ✅ **SRP** - Cada listener con responsabilidad única
+- ✅ **Bajo acoplamiento (GRASP)** - Listeners desacoplados entre sí
+- ✅ **Indirección (GRASP)** - EventHandler como intermediario
+
+---
+
+### Refactorización 3: DIP en ArduinoSerial - Eliminar acoplamiento a WaterLevelSensor concreto
+
+**Problema:** `ArduinoSerial` recibe `WaterLevelSensor` concreto en constructor, acoplando la comunicación serial a un sensor específico. No permite diferentes tipos de sensores ni es testable.
+
+**Principios que viola:**
+- DIP (Dependency Inversion Principle) - Acoplado a implementación concreta
+- SRP (Single Responsibility Principle) - Mezcla comunicación serial con conocimiento de sensores
+
+---
+
+**Archivos involucrados:**
+- `infrastructure/hardware/ArduinoSerial.java` (REFACTORIZADA)
+- `WaterTankApplication.java` (Main.java refactorizado)
+
+---
+
+**Código antes - ArduinoSerial.java:**
+
+```java
+public class ArduinoSerial {
+    private SerialPort puertoArduino;
+    private WaterLevelSensor sensorDelDominio;  // ❌ ACOPLADO A TIPO ESPECÍFICO
+
+    public ArduinoSerial(String nombrePuerto, WaterLevelSensor sensor) {
+        this.sensorDelDominio = sensor;  // ❌ SOLO ACEPTA WaterLevelSensor
+        // ...resto igual...
+    }
+
+    public void iniciarConexion() {
+        // ...
+        hiloEscucha = new Thread(() -> {
+            while (scanner.hasNextLine()) {
+                String lineaRecibida = scanner.nextLine().trim();
+                if (lineaRecibida.isEmpty()) continue;
+                try {
+                    float distanciaLeida = Float.parseFloat(lineaRecibida);
+                    sensorDelDominio.setWaterLevel(distanciaLeida);  // ❌ Acceso directo
+                } catch (NumberFormatException e) {
+                    // ...
+                }
+            }
+        });
+        // ...
+    }
+}
+```
+
+---
+
+**Código después - ArduinoSerial refactorizado en infrastructure/hardware/**
+
+```java
+package infrastructure.hardware;
+
+import com.fazecast.jSerialComm.SerialPort;
+import java.util.Scanner;
+import java.util.function.Consumer;
+
+/**
+ * Comunicación serial con Arduino.
+ * ✅ DESACOPLADO: Recibe Consumer<Float> en lugar de sensor específico.
+ * Esto permite:
+ * - Conectar a cualquier tipo de sensor
+ * - Testing fácil con mocks
+ * - Reutilización en diferentes contextos
+ */
+public class ArduinoSerial {
+    private SerialPort puertoArduino;
+    private Consumer<Float> onDataReceived;  // ✅ GENÉRICO - Acepta cualquier acción
+
+    /**
+     * Constructor que recibe callback genérico.
+     * @param nombrePuerto Puerto COM (ej. "COM3")
+     * @param onDataReceived Callback que se ejecuta cuando se reciben datos
+     */
+    public ArduinoSerial(String nombrePuerto, Consumer<Float> onDataReceived) {
+        this.onDataReceived = onDataReceived;
+        this.puertoArduino = SerialPort.getCommPort(nombrePuerto);
+        this.puertoArduino.setBaudRate(9600);
+        this.puertoArduino.setComPortTimeouts(SerialPort.TIMEOUT_SCANNER, 0, 0);
+    }
+
+    public void iniciarConexion() {
+        if (puertoArduino.openPort()) {
+            System.out.println("🔌 CONEXIÓN SERIAL: Arduino conectado exitosamente.");
+
+            try {
+                System.out.println("⏳ Esperando a que el Arduino despierte...");
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                // Ignorar
+            }
+        } else {
+            System.out.println("❌ ERROR: No se pudo abrir el puerto del Arduino.");
+            return;
+        }
+
+        Thread hiloEscucha = new Thread(() -> {
+            Scanner scanner = new Scanner(puertoArduino.getInputStream());
+
+            while (scanner.hasNextLine()) {
+                String lineaRecibida = scanner.nextLine().trim();
+
+                if (lineaRecibida.isEmpty()) continue;
+
+                try {
+                    float distanciaLeida = Float.parseFloat(lineaRecibida);
+                    // ✅ DESACOPLADO: Ejecuta el callback sin conocer detalles
+                    onDataReceived.accept(distanciaLeida);
+
+                } catch (NumberFormatException e) {
+                    System.err.println("⚠️ Error convirtiendo a número. Basura recibida: [" + lineaRecibida + "]");
+                }
+            }
+            scanner.close();
+        });
+
+        hiloEscucha.start();
+    }
+
+    public void cerrarConexion() {
+        if (puertoArduino.isOpen()) {
+            puertoArduino.closePort();
+            System.out.println("Conexión serial cerrada.");
+        }
+    }
+
+    public void enviarComando(String comando) {
+        if (puertoArduino != null && puertoArduino.isOpen()) {
+            byte[] bytes = comando.getBytes();
+            puertoArduino.writeBytes(bytes, bytes.length);
+        }
+    }
+}
+```
+
+---
+
+**Impacto en Main.java (WaterTankApplication.java refactorizado):**
+
+```java
+// Antes:
+// ArduinoSerial conexion = new ArduinoSerial("COM3", miSensor);
+
+// ✅ Después: Usar method reference
+ArduinoSerial conexion = new ArduinoSerial("COM3", miSensor::setWaterLevel);
+
+// O si quisieras procesar el dato antes de enviarlo:
+// ArduinoSerial conexion = new ArduinoSerial("COM3", 
+//     data -> {
+//         System.out.println("Dato recibido: " + data);
+//         miSensor.setWaterLevel(data);
+//     }
+// );
+```
+
+**Principios que resuelve:**
+- ✅ **DIP** - No depende de `WaterLevelSensor` concreto, depende de abstracción (`Consumer`)
+- ✅ **SRP** - `ArduinoSerial` solo maneja comunicación serial
+- ✅ **Bajo acoplamiento (GRASP)** - Totalmente desacoplado de dominio
+- ✅ **Testabilidad** - Fácil mockear con `Consumer` para testing
+
+---
+
+### Refactorización 4: DIP en InMemoryUserRepository - Inyectar PasswordHasher
+
+**Problema:** `InMemoryUserRepository` instancia `SimplePasswordHasher` con `new` adentro del constructor, violando DIP. No permite cambiar algoritmo de hashing sin modificar el repositorio.
+
+**Principios que viola:**
+- DIP (Dependency Inversion Principle) - Depende de implementación concreta
+- OCP (Open/Closed Principle) - Cerrado a nuevos algoritmos
+
+---
+
+**Archivos involucrados:**
+- `infrastructure/persistence/InMemoryUserRepository.java` (REFACTORIZADA)
+- `WaterTankApplication.java` (Main.java refactorizado)
+
+---
+
+**Código antes - InMemoryUserRepository.java:**
+
+```java
+public class InMemoryUserRepository implements UserRepository {
+    private Map<UUID, User> users = new HashMap<>();
+
+    public InMemoryUserRepository() {
+        // ❌ CREA SimplePasswordHasher AQUÍ - Acoplamiento directo
+        SimplePasswordHasher hasher = new SimplePasswordHasher();
+
+        Credential credAdmin = new Credential(hasher.hashPassword("123"), "", LocalDateTime.now());
+        Credential credUser = new Credential(hasher.hashPassword("123"), "", LocalDateTime.now());
+
+        User admin = new User(UUID.randomUUID(), "ADMIN", RoleType.ADMIN, true, credAdmin);
+        User normalUser = new User(UUID.randomUUID(), "USER", RoleType.USER, true, credUser);
+
+        save(admin);
+        save(normalUser);
+    }
+
+    // ...resto igual...
+}
+```
+
+---
+
+**Código después - InMemoryUserRepository refactorizado en infrastructure/persistence/**
+
+```java
+package infrastructure.persistence;
+
+import domain.model.Credential;
+import domain.model.RoleType;
+import domain.model.User;
+import domain.service.PasswordHasher;
+import domain.service.UserRepository;
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+
+/**
+ * Repositorio de usuarios en memoria.
+ * ✅ DESACOPLADO: Recibe PasswordHasher inyectado.
+ * Permite diferentes implementaciones de hashing sin modificar este código.
+ */
+public class InMemoryUserRepository implements UserRepository {
+    private Map<UUID, User> users = new HashMap<>();
+    private PasswordHasher passwordHasher;  // ✅ INYECTADO
+
+    /**
+     * Constructor que recibe la dependencia.
+     * @param passwordHasher Implementación de hashing a usar
+     */
+    public InMemoryUserRepository(PasswordHasher passwordHasher) {
+        this.passwordHasher = passwordHasher;  // ✅ ASIGNACIÓN
+        initializeDefaultUsers();
+    }
+
+    /**
+     * Inicializa usuarios por defecto.
+     */
+    private void initializeDefaultUsers() {
+        // ✅ USA el hasher INYECTADO
+        Credential credAdmin = new Credential(
+            passwordHasher.hashPassword("123"), 
+            "", 
+            LocalDateTime.now()
+        );
+        Credential credUser = new Credential(
+            passwordHasher.hashPassword("123"), 
+            "", 
+            LocalDateTime.now()
+        );
+
+        User admin = new User(UUID.randomUUID(), "ADMIN", RoleType.ADMIN, true, credAdmin);
+        User normalUser = new User(UUID.randomUUID(), "USER", RoleType.USER, true, credUser);
+
+        save(admin);
+        save(normalUser);
+    }
+
+    @Override
+    public void save(User user) {
+        users.put(user.getId(), user);
+    }
+
+    @Override
+    public Optional<User> findByUserName(String userName) {
+        return users.values().stream()
+            .filter(u -> u.getUserName().equalsIgnoreCase(userName))
+            .findFirst();
+    }
+
+    @Override
+    public Optional<User> findById(UUID id) {
+        return Optional.ofNullable(users.get(id));
+    }
+}
+```
+
+---
+
+**Impacto en Main.java (WaterTankApplication.java refactorizado):**
+
+```java
+// Antes:
+// UserRepository userRepo = new InMemoryUserRepository();
+
+// ✅ Después: Inyectar PasswordHasher
+PasswordHasher hasher = new SimplePasswordHasher();
+UserRepository userRepo = new InMemoryUserRepository(hasher);
+
+// Ahora si queremos cambiar el algoritmo:
+// PasswordHasher hasher = new Argon2PasswordHasher(); // Futuro
+// UserRepository userRepo = new InMemoryUserRepository(hasher);
+```
+
+**Principios que resuelve:**
+- ✅ **DIP** - Depende de `PasswordHasher` interface, no de `SimplePasswordHasher`
+- ✅ **OCP** - Nuevos algoritmos de hashing sin modificar repositorio
+- ✅ **Bajo acoplamiento (GRASP)** - Desacoplado de implementación específica
+- ✅ **Inyección de dependencias** - Manual pero correcta
+
+---
+
+### Refactorización 5: SRP en LoginCommand - Abstraer I/O en Interface
+
+**Problema:** `LoginCommand` instancia `Scanner` directamente para entrada de usuario. Acoplamiento a `System.in` específico, no testeable, viola SRP (mezcla lógica de login con I/O).
+
+**Principios que viola:**
+- SRP (Single Responsibility Principle) - Mezcla login con captura de input
+- DIP (Dependency Inversion Principle) - Acoplado a `System.in`
+- Testabilidad - No se puede testear sin entrada real
+
+---
+
+**Archivos involucrados:**
+- `application/port/outbound/InputProvider.java` (NUEVA INTERFACE)
+- `infrastructure/external/ConsoleInputProvider.java` (NUEVA IMPLEMENTACIÓN)
+- `application/command/LoginCommand.java` (REFACTORIZADA)
+- `WaterTankApplication.java` (Main.java refactorizado)
+
+---
+
+**Código después - Paso 1: InputProvider en application/port/outbound/**
+
+```java
+package application.port.outbound;
+
+/**
+ * Puerto de salida para captura de entrada de usuario.
+ * Abstrae diferentes formas de obtener input (consola, archivo, mock, etc).
+ * ✅ Implementa Ports & Adapters (Clean Architecture).
+ */
+public interface InputProvider {
+    /**
+     * Lee una línea de entrada del usuario.
+     * @return La línea ingresada
+     */
+    String readLine();
+
+    /**
+     * Imprime un prompt al usuario.
+     * @param prompt Texto a mostrar
+     */
+    void prompt(String prompt);
+}
+```
+
+---
+
+**Código después - Paso 2: ConsoleInputProvider en infrastructure/external/**
+
+```java
+package infrastructure.external;
+
+import application.port.outbound.InputProvider;
+import java.util.Scanner;
+
+/**
+ * Implementación concreta de InputProvider usando Scanner de consola.
+ * ✅ Implementa el patrón Adapter para entrada de consola.
+ * La lógica de dominio no conoce que esto existe - está completamente aislado.
+ */
+public class ConsoleInputProvider implements InputProvider {
+    private Scanner scanner;
+
+    public ConsoleInputProvider() {
+        this.scanner = new Scanner(System.in);
+    }
+
+    @Override
+    public String readLine() {
+        return scanner.nextLine();
+    }
+
+    @Override
+    public void prompt(String prompt) {
+        System.out.print(prompt);
+    }
+}
+```
+
+---
+
+**Código después - Paso 3: LoginCommand refactorizado en application/command/**
+
+```java
+package application.command;
+
+import application.port.outbound.InputProvider;
+import domain.service.RepositoryLog;
+
+/**
+ * Comando de login.
+ * ✅ DESACOPLADO: Recibe InputProvider inyectado.
+ * SRP: Responsabilidad única = orquestar login.
+ * I/O delegado a InputProvider.
+ */
+public class LoginCommand implements Command {
+    private InputProvider inputProvider;  // ✅ INYECTADO
+
+    /**
+     * Constructor que recibe el proveedor de entrada.
+     * @param inputProvider Implementación de captura de input
+     */
+    public LoginCommand(InputProvider inputProvider) {
+        this.inputProvider = inputProvider;  // ✅ ASIGNACIÓN
+    }
+
+    @Override
+    public void execute(AppContext context, String arg) throws Exception {
+        // ✅ USA el inputProvider inyectado en lugar de crear Scanner
+        inputProvider.prompt("Usuario: ");
+        String userName = inputProvider.readLine();
+
+        inputProvider.prompt("Contraseña: ");
+        String password = inputProvider.readLine();
+
+        if (context.getAuth().login(userName, password)) {
+            System.out.println("Login exitoso.");
+            context.getLogger().saveLog("[AUTH] Usuario " + userName + " inició sesión.");
+        } else {
+            System.out.println("Login fallido. Usuario o contraseña incorrectos");
+        }
+    }
+}
+```
+
+---
+
+**Impacto en Main.java (WaterTankApplication.java refactorizado):**
+
+```java
+// Antes:
+// cmdHandler.registerCommand("login", new LoginCommand());
+
+// ✅ Después: Inyectar InputProvider
+InputProvider inputProvider = new ConsoleInputProvider();
+cmdHandler.registerCommand("login", new LoginCommand(inputProvider));
+
+// Para testing con entrada simulada:
+// InputProvider mockInput = new MockInputProvider("admin", "123");
+// cmdHandler.registerCommand("login", new LoginCommand(mockInput));
+```
+
+**Principios que resuelve:**
+- ✅ **SRP** - `LoginCommand` solo orquesta login, I/O delegado
+- ✅ **DIP** - Depende de `InputProvider` interface, no de `Scanner`
+- ✅ **Testabilidad** - Fácil crear `MockInputProvider` para tests
+- ✅ **Ports & Adapters** - Clear separation de logicay  infraestructura
+
+---
+
+### Refactorización 6: Facade Pattern en AppContext - Eliminar Drilling
+
+**Problema:** `Console` hace drilling profundo: `context.getAuth().getCurrentUser().getRole()`. `AppContext` expone internos violan ISP. Service Locator anti-patrón.
+
+**Principios que viola:**
+- ISP (Interface Segregation Principle) - Expone servicios completos innecesariamente
+- Low coupling (GRASP) - Console acoplada a estructura interna de AppContext
+
+---
+
+**Archivos involucrados:**
+- `application/service/AppContext.java` (REFACTORIZADA)
+- `presentation/console/Console.java` (REFACTORIZADA)
+
+---
+
+**Código antes - AppContext.java:**
+
+```java
+public class AppContext {
+    private final Authenticator auth;
+    private final EventHandler handler;
+    private final RepositoryLog logger;
+
+    public AppContext(Authenticator auth, EventHandler handler, RepositoryLog logger) {
+        this.auth = auth;
+        this.handler = handler;
+        this.logger = logger;
+    }
+
+    // ❌ Expone servicios raw - Service Locator anti-patrón
+    public Authenticator getAuth() { return auth; }
+    public EventHandler getHandler() { return handler; }
+    public RepositoryLog getLogger() { return logger; }
+}
+```
+
+**Código en Console que hace drilling:**
+```java
+String user = context.getAuth().getCurrentUser().getUserName();  // ❌ DRILLING
+String role = context.getAuth().getCurrentUser().getRole().toString();  // ❌ DRILLING
+```
+
+---
+
+**Código después - AppContext refactorizado en application/service/**
+
+```java
+package application.service;
+
+import domain.model.User;
+import domain.event.EventHandler;
+import domain.service.RepositoryLog;
+
+/**
+ * Contexto de aplicación.
+ * ✅ FACADE PATTERN: Expone métodos de fachada, NO getters raw.
+ * Console nunca accede directa a Authenticator/EventHandler/Logger.
+ * Reduce acoplamiento y facilita futuros cambios.
+ */
+public class AppContext {
+    private final Authenticator authenticator;
+    private final EventHandler eventHandler;
+    private final RepositoryLog logger;
+
+    public AppContext(Authenticator authenticator, EventHandler eventHandler, RepositoryLog logger) {
+        this.authenticator = authenticator;
+        this.eventHandler = eventHandler;
+        this.logger = logger;
+    }
+
+    // ✅ MÉTODOS DE FACHADA - No exponen internos
+    
+    /**
+     * Obtiene el nombre del usuario actual.
+     * @return Nombre del usuario o null si no está logueado
+     */
+    public String getCurrentUserName() {
+        User currentUser = authenticator.getCurrentUser();
+        return currentUser != null ? currentUser.getUserName() : null;
+    }
+
+    /**
+     * Verifica si el usuario actual es administrador.
+     * @return true si es admin
+     */
+    public boolean isCurrentUserAdmin() {
+        User currentUser = authenticator.getCurrentUser();
+        if (currentUser == null) return false;
+        return currentUser.getRole().name().equals("ADMIN");
+    }
+
+    /**
+     * Verifica si hay un usuario logueado.
+     * @return true si hay usuario logueado
+     */
+    public boolean isUserLoggedIn() {
+        return authenticator.getCurrentUser() != null;
+    }
+
+    /**
+     * Cierra la sesión del usuario actual.
+     */
+    public void logoutCurrentUser() {
+        authenticator.logout();
+    }
+
+    /**
+     * Realiza login de usuario.
+     * @param userName Nombre de usuario
+     * @param password Contraseña
+     * @return true si login fue exitoso
+     */
+    public boolean loginUser(String userName, String password) {
+        return authenticator.login(userName, password);
+    }
+
+    /**
+     * Registra un evento en el log.
+     * @param message Mensaje a registrar
+     */
+    public void logEvent(String message) {
+        logger.saveLog(message);
+    }
+
+    // ❌ GETTERS RAW ELIMINADOS (o privados si son necesarios internamente)
+    // public Authenticator getAuth() { return authenticator; }
+    // public EventHandler getHandler() { return eventHandler; }
+    // public RepositoryLog getLogger() { return logger; }
+}
+```
+
+---
+
+**Código después - Console refactorizado en presentation/console/**
+
+```java
+// En printLoggedInPanel():
+// ANTES:
+// String user = context.getAuth().getCurrentUser().getUserName();  // ❌ DRILLING
+// String role = context.getAuth().getCurrentUser().getRole().toString();  // ❌ DRILLING
+
+// ✅ DESPUÉS: Usar métodos de fachada
+String user = context.getCurrentUserName();
+boolean isAdmin = context.isCurrentUserAdmin();
+String role = isAdmin ? "ADMIN" : "USER";
+
+printRow("  👤 " + YE + B + user + R + "  [" + WH + role + R + "]");
+
+// En logout:
+// ANTES:
+// context.getAuth().logout();  // ❌ Acceso a servicio raw
+
+// ✅ DESPUÉS:
+context.logoutCurrentUser();
+```
+
+**Principios que resuelve:**
+- ✅ **ISP** - Console no depende de servicios completos, solo de métodos que usa
+- ✅ **Facade Pattern** - Interface simple hacia servicios complejos
+- ✅ **Bajo acoplamiento (GRASP)** - Console desacoplada de estructura interna
+- ✅ **Encapsulación** - AppContext puede cambiar internamente sin afectar Console
+
+---
+
+### Refactorización 7: LSP en SensorLevelManager - Eliminar run() vacío
+
+**Problema:** `SensorLevelManager` tiene `public void run() {}` vacío. `WaterLevelManager` y `TemperatureManager` heredan pero violan LSP en nivel de abstracción. Jerarquía confusa.
+
+**Principios que viola:**
+- LSP (Liskov Substitution Principle) - Clase base con métodos vacíos
+- SRP (Single Responsibility Principle) - Jerarquía mal definida
+
+---
+
+**Archivos involucrados:**
+- `application/service/SensorLevelManager.java` (REFACTORIZADA)
+- `application/service/TemperatureManager.java` (REFACTORIZADA)
+
+---
+
+**Código antes - SensorLevelManager.java:**
+
+```java
+public class SensorLevelManager {
+    private float level;
+    private float minLevel;
+    private float maxLevel;
+    private boolean isActive;
+
+    public SensorLevelManager(float minLevel, float maxLevel) {
+        this.minLevel = minLevel;
+        this.maxLevel = maxLevel;
+        this.level = 0.0f;
+        this.isActive = false;
+    }
+
+    // ...getters y setters...
+
+    public void run() {
+        // ❌ VACÍO - Cualquier hijo debe implementar
+        // Viola LSP: no define contrato claro
+    }
+}
+```
+
+---
+
+**Código después - SensorLevelManager refactorizado en application/service/**
+
+```java
+package application.service;
+
+import domain.service.RepositoryLog;
+
+/**
+ * Clase abstracta base para gestión de sensores.
+ * ✅ ABSTRACT: Define contrato claro que todo hijo DEBE implementar.
+ * LSP cumplido: todo hijo es instancia válida de "manejador de sensores".
+ */
+public abstract class SensorLevelManager {
+    protected float level;
+    protected float minLevel;
+    protected float maxLevel;
+    protected boolean isActive;
+    protected RepositoryLog logger;  // ✅ AGREGADO para logging
+
+    public SensorLevelManager(float minLevel, float maxLevel, RepositoryLog logger) {
+        this.minLevel = minLevel;
+        this.maxLevel = maxLevel;
+        this.level = 0.0f;
+        this.isActive = false;
+        this.logger = logger;  // ✅ INYECTADO
+    }
+
+    public float getLevel() {
+        return level;
+    }
+
+    public void setLevel(float level) {
+        this.level = level;
+    }
+
+    public float getMinLevel() {
+        return minLevel;
+    }
+
+    public float getMaxLevel() {
+        return maxLevel;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
+    }
+
+    /**
+     * Método abstracto: todo hijo DEBE implementar.
+     * ✅ ABSTRACT: Viola LSP si no se implementa correctamente.
+     * Define claramente qué es un gestor de sensores.
+     */
+    public abstract void run();
+}
+```
+
+---
+
+**Código después - TemperatureManager refactorizado en application/service/**
+
+```java
+package application.service;
+
+import domain.model.TemperatureSensor;
+import domain.service.RepositoryLog;
+
+/**
+ * Gestor de temperatura.
+ * ✅ Implementa contrato de SensorLevelManager.
+ * LSP: Es una instancia válida de "manejador de sensores".
+ */
+public class TemperatureManager extends SensorLevelManager {
+    private TemperatureSensor temperatureSensor;
+
+    public TemperatureManager(
+            TemperatureSensor temperatureSensor, 
+            float minLevel, 
+            float maxLevel,
+            RepositoryLog logger) {  // ✅ AGREGADO
+        super(minLevel, maxLevel, logger);  // ✅ PASA A PADRE
+        this.temperatureSensor = temperatureSensor;
+    }
+
+    /**
+     * Lógica específica de gestión de temperatura.
+     * ✅ IMPLEMENTA el contrato abstracto.
+     */
+    @Override
+    public void run() {
+        if (!isActive) return;
+
+        float tempActual = temperatureSensor.getTemperature();
+
+        // Lógica de gestión de temperatura
+        if (tempActual > maxLevel) {
+            logger.saveLog("[ALERTA] Temperatura alta: " + tempActual + "°C");
+            // Podría disparar acciones: encender ventilador, etc.
+        } else if (tempActual < minLevel) {
+            logger.saveLog("[ALERTA] Temperatura baja: " + tempActual + "°C");
+            // Podría disparar acciones: encender calentador, etc.
+        }
+    }
+
+    public void setTemperature(float temperature) {
+        temperatureSensor.setTemperature(temperature);
+    }
+
+    public TemperatureSensor getTemperatureSensor() {
+        return temperatureSensor;
+    }
+}
+```
+
+---
+
+**Impacto en Main.java (WaterTankApplication.java refactorizado):**
+
+```java
+// Antes:
+// SensorLevelManager no se instanciaba directamente (era vacío)
+
+// ✅ Después: Instanciar TemperatureManager correctamente
+TemperatureManager tempManager = new TemperatureManager(
+    temperatureSensor,
+    0.0f,      // minLevel
+    50.0f,     // maxLevel
+    logger     // ✅ AGREGADO
+);
+tempManager.setActive(true);
+
+// Ahora tempManager es una instancia válida de SensorLevelManager
+// y LSP se cumple: puede usarse como SensorLevelManager en cualquier contexto
+```
+
+**Principios que resuelve:**
+- ✅ **LSP** - Clase abstracta define contrato, subclases implementan correctamente
+- ✅ **SRP** - SensorLevelManager tiene responsabilidad clara: gestión base
+- ✅ **Polimorfismo (GRASP)** - Verdadero polimorfismo con jerarquía correcta
+
+---
+
+## 7. IMPACTO ESTIMADO EN LA EVALUACIÓN TÉCNICA
+
+### Tabla de Mejora de Puntuaciones
+
+| Aspecto | Antes | Después | Mejora |
+|---|---|---|---|
+| **Strategy (GoF)** | 0/10 | 9/10 | +9 |
+| **Observer (GoF)** | 5/10 | 9/10 | +4 |
+| **Repository (GoF)** | 7/10 | 8/10 | +1 |
+| **Command (GoF)** | 6/10 | 8/10 | +2 |
+| **SRP (SOLID)** | 6/10 | 8/10 | +2 |
+| **OCP (SOLID)** | 7/10 | 8/10 | +1 |
+| **LSP (SOLID)** | 8/10 | 9/10 | +1 |
+| **ISP (SOLID)** | 8/10 | 9/10 | +1 |
+| **DIP (SOLID)** | 6/10 | 9/10 | +3 |
+| **Bajo Acoplamiento (GRASP)** | 6/10 | 9/10 | +3 |
+| **Alta Cohesión (GRASP)** | 6/10 | 8/10 | +2 |
+| **Testabilidad General** | 4/10 | 9/10 | +5 |
+| **Puntuación Global** | 6.2/10 | 8.4/10 | +2.2 |
+
+**Analisis del Impacto:**
+
+**Máximas Mejoras:**
+- **Strategy:** De 0 a 9 por introducción completa del patrón
+- **DIP:** De 6 a 9 por refactorización exhaustiva de acoplamientos
+- **Testabilidad:** De 4 a 9 por inyección de dependencias en I/O
+
+**Mejoras Moderadas:**
+- **Observer:** De 5 a 9 por integración de Alarm y LoggerListener
+- **SRP:** De 6 a 8 por separación clara de responsabilidades
+- **Bajo Acoplamiento:** De 6 a 9 por I/O abstraído
+
+**Mejoras Discretas:**
+- **LSP, ISP, OCP:** Ya estaban relativamente buenos, se completan
+
+**Conclusión:** Las refactorizaciones transforman la arquitectura de **Intermedia-Inicial (6.2)** a **Semi-Profesional (8.4)**, mejorando especialmente en patrones GoF críticos y cumplimiento SOLID.
+
+---
+
 **FIN DE LA PROPUESTA DE REESTRUCTURACIÓN**
 
 *Esta reestructuración transformará el proyecto de una arquitectura básica a una arquitectura profesional siguiendo Clean Architecture, preparada para crecimiento futuro.*
+
 </content>
 <parameter name="filePath">c:\Users\dlyno\IdeaProjects\Tecnologia_water_tank\ESTRUCTURA
