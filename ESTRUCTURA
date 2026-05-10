@@ -1,0 +1,423 @@
+# 📋 PROPUESTA DE REESTRUCTURACIÓN ARQUITECTÓNICA - CLEAN ARCHITECTURE
+
+**Fecha:** 10 de mayo de 2026  
+**Arquitecto:** GitHub Copilot  
+**Metodología:** Clean Architecture + SOLID + GRASP + GoF Patterns
+
+---
+
+## 1. ANÁLISIS DE LA ESTRUCTURA ACTUAL
+
+### 1.1 Estructura Actual Identificada
+
+```
+Backend/src/main/java/
+├── ArduinoComm/
+│   └── ArduinoSerial.java              # Comunicación serial - INFRAESTRUCTURA
+├── Domain/
+│   ├── Alarm.java                      # ¿Entidad o implementación?
+│   ├── Credential.java                 # Value Object ✓
+│   ├── Event.java                      # Value Object ✓
+│   ├── EventHandler.java               # ¿Application o Infrastructure?
+│   ├── EventListener.java              # Interface de contrato ✓
+│   ├── IPump.java                      # Interface de contrato ✓
+│   ├── IWaterSystemStatus.java         # Interface de contrato ✓
+│   ├── RoleType.java                   # Enum/Value Object ✓
+│   ├── Sensor.java                     # Entidad base ✓
+│   ├── SensorTypeEvent.java            # Enum ✓
+│   ├── TemperatureSensor.java          # Entidad ✓
+│   ├── User.java                       # Entidad ✓
+│   ├── WaterLevelSensor.java           # Entidad ✓
+│   └── WaterTank.java                  # Entidad/Lógica de dominio ✓
+├── Main/
+│   ├── Alarm.java                      # ¿Duplicado?
+│   └── Main.java                       # Composition Root ✓
+├── Repository/
+│   ├── FileLogRepository.java          # Implementación concreta - INFRAESTRUCTURA
+│   ├── InMemoryUserRepository.java     # Implementación concreta - INFRAESTRUCTURA
+│   ├── RepositoryLog.java              # Interface de contrato ✓
+│   └── UserRepository.java             # Interface de contrato ✓
+├── Services/
+│   ├── AppContext.java                 # Application Service ✓
+│   ├── AuthenticationService.java      # Application Service ✓
+│   ├── Authenticator.java              # Application Service ✓
+│   ├── AuthorizationService.java       # Application Service ✓
+│   ├── Command.java                    # Interface Command ✓
+│   ├── CommandHandler.java             # Application Service ✓
+│   ├── LoginCommand.java               # Command Implementation ✓
+│   ├── PasswordHasher.java             # Interface de contrato ✓
+│   ├── Pump.java                       # ¿Domain o Infrastructure?
+│   ├── PumpOffCommand.java             # Command Implementation ✓
+│   ├── PumpOnCommand.java              # Command Implementation ✓
+│   ├── PumpOffCommand.java             # Command Implementation ✓
+│   ├── SimplePasswordHasher.java       # Implementación concreta - INFRAESTRUCTURA
+│   ├── SensorLevelManager.java         # Application Service ✓
+│   ├── TemperatureManager.java         # Application Service ✓
+│   ├── ViewLevelCommand.java           # Command Implementation ✓
+│   ├── ViewLogsCommand.java            # Command Implementation ✓
+│   └── WaterLevelManager.java          # Application Service ✓
+└── ui/
+    └── Console.java                    # Presentation Layer ✓
+```
+
+### 1.2 Problemas Arquitectónicos Detectados
+
+1. **Mezcla de Concerns:** Interfaces y implementaciones comparten paquetes
+2. **Domain Contaminado:** Contiene clases que son detalles de implementación
+3. **Infrastructure Dispersa:** Implementaciones concretas en múltiples paquetes
+4. **Dependencias Invertidas Incorrectas:** Capas superiores conocen implementaciones
+
+---
+
+## 2. PROPUESTA DE NUEVA ESTRUCTURA - CLEAN ARCHITECTURE
+
+### 2.1 Arquitectura Propuesta
+
+```
+src/main/java/com/water/tank/           # Package base del dominio
+├── domain/                             # CAPA DE DOMINIO
+│   ├── model/                          # Entidades y Value Objects
+│   ├── service/                        # Interfaces de dominio (contratos)
+│   └── event/                          # Eventos de dominio
+├── application/                        # CAPA DE APLICACIÓN
+│   ├── command/                        # Patrón Command
+│   ├── query/                          # Patrón Query (futuro)
+│   ├── service/                        # Application Services
+│   └── port/                           # Ports (interfaces hacia infraestructura)
+├── infrastructure/                     # CAPA DE INFRAESTRUCTURA
+│   ├── persistence/                    # Repositories concretos
+│   ├── hardware/                       # Comunicación Arduino
+│   ├── security/                       # Hashing, encriptación
+│   ├── external/                       # APIs externas, I/O
+│   └── config/                         # Configuración
+└── presentation/                       # CAPA DE PRESENTACIÓN
+    ├── console/                        # UI de consola
+    ├── web/                            # Futura UI web
+    └── api/                            # Futura API REST
+```
+
+### 2.2 Reglas de Dependencia (Clean Architecture)
+
+```
+Presentation → Application → Domain ← Infrastructure
+```
+
+- **Domain:** No depende de nada (núcleo puro)
+- **Application:** Depende solo de Domain
+- **Infrastructure:** Depende de Domain (implementa interfaces)
+- **Presentation:** Depende de Application
+
+### 2.3 Nuevo Árbol de Directorios Detallado
+
+```
+Backend/src/main/java/
+├── domain/
+│   ├── model/
+│   │   ├── Credential.java
+│   │   ├── Event.java
+│   │   ├── Sensor.java
+│   │   ├── TemperatureSensor.java
+│   │   ├── User.java
+│   │   ├── WaterLevelSensor.java
+│   │   ├── WaterTank.java
+│   │   └── Alarm.java                    # MOVIDO desde Main/
+│   ├── service/
+│   │   ├── IPump.java
+│   │   ├── IWaterSystemStatus.java
+│   │   ├── EventListener.java
+│   │   ├── PasswordHasher.java           # MOVIDO desde Services/
+│   │   ├── RepositoryLog.java            # MOVIDO desde Repository/
+│   │   └── UserRepository.java           # MOVIDO desde Repository/
+│   └── event/
+│       ├── EventHandler.java             # MOVIDO desde Domain/
+│       ├── SensorTypeEvent.java
+│       └── RoleType.java
+├── application/
+│   ├── command/
+│   │   ├── Command.java
+│   │   ├── CommandHandler.java
+│   │   ├── LoginCommand.java
+│   │   ├── PumpOnCommand.java
+│   │   ├── PumpOffCommand.java
+│   │   ├── ViewLevelCommand.java
+│   │   └── ViewLogsCommand.java
+│   ├── service/
+│   │   ├── AppContext.java
+│   │   ├── AuthenticationService.java
+│   │   ├── Authenticator.java
+│   │   ├── AuthorizationService.java
+│   │   ├── SensorLevelManager.java
+│   │   ├── TemperatureManager.java
+│   │   └── WaterLevelManager.java
+│   └── port/
+│       └── outbound/                     # Interfaces hacia infraestructura
+│           ├── InputProvider.java        # NUEVO - para I/O
+│           └── OutputProvider.java       # NUEVO - para I/O
+├── infrastructure/
+│   ├── persistence/
+│   │   ├── InMemoryUserRepository.java   # MOVIDO desde Repository/
+│   │   └── FileLogRepository.java        # MOVIDO desde Repository/
+│   ├── hardware/
+│   │   ├── ArduinoSerial.java            # MOVIDO desde ArduinoComm/
+│   │   └── Pump.java                     # MOVIDO desde Services/
+│   ├── security/
+│   │   └── SimplePasswordHasher.java     # MOVIDO desde Services/
+│   ├── external/
+│   │   ├── ConsoleInputProvider.java     # NUEVO - implementación de InputProvider
+│   │   └── ConsoleOutputProvider.java    # NUEVO - implementación de OutputProvider
+│   └── config/
+│       └── AppConfig.java                # NUEVO - configuración centralizada
+├── presentation/
+│   └── console/
+│       └── Console.java                  # MOVIDO desde ui/
+└── Main.java                             # MOVIDO al raíz, renombrado a WaterTankApplication.java
+```
+
+---
+
+## 3. MOVIMIENTOS ESPECÍFICOS DE CLASES
+
+### 3.1 Clases Solicitadas Específicamente
+
+| Clase | Origen Actual | Destino Nuevo | Justificación |
+|-------|---------------|---------------|---------------|
+| **ArduinoSerial** | `ArduinoComm/ArduinoSerial.java` | `infrastructure/hardware/ArduinoSerial.java` | Es implementación concreta de comunicación serial (tecnología específica) |
+| **FileLogRepository** | `Repository/FileLogRepository.java` | `infrastructure/persistence/FileLogRepository.java` | Implementación concreta de persistencia en archivo |
+| **SimplePasswordHasher** | `Services/SimplePasswordHasher.java` | `infrastructure/security/SimplePasswordHasher.java` | Implementación concreta de algoritmo de hashing |
+| **Pump** | `Services/Pump.java` | `infrastructure/hardware/Pump.java` | Implementación concreta de IPump (hardware/controlador físico) |
+
+### 3.2 Movimientos Adicionales Recomendados
+
+#### **Desde Domain:**
+- `EventHandler.java` → `domain/event/EventHandler.java` (es parte del modelo de eventos del dominio)
+- `Alarm.java` → `domain/model/Alarm.java` (es una entidad de dominio)
+
+#### **Desde Repository:**
+- `RepositoryLog.java` → `domain/service/RepositoryLog.java` (interface de contrato)
+- `UserRepository.java` → `domain/service/UserRepository.java` (interface de contrato)
+
+#### **Desde Services:**
+- `PasswordHasher.java` → `domain/service/PasswordHasher.java` (interface de contrato)
+- `Command.java` → `application/command/Command.java` (parte del patrón Command)
+- `CommandHandler.java` → `application/command/CommandHandler.java`
+- Todos los `*Command.java` → `application/command/`
+- Todos los `*Service.java` → `application/service/`
+
+#### **Desde ui:**
+- `Console.java` → `presentation/console/Console.java`
+
+#### **Desde Main:**
+- `Main.java` → raíz como `WaterTankApplication.java` (Composition Root)
+
+---
+
+## 4. LIMPIEZA DEL DOMINIO
+
+### 4.1 Análisis de Clases en Domain Actual
+
+#### **Clases que PERMANECEN en Domain (Modelo Puro):**
+- ✅ `Credential.java` - Value Object puro
+- ✅ `Event.java` - Value Object de evento
+- ✅ `IPump.java` - Interface de contrato de dominio
+- ✅ `IWaterSystemStatus.java` - Interface de contrato
+- ✅ `RoleType.java` - Enum de dominio
+- ✅ `Sensor.java` - Entidad base abstracta
+- ✅ `SensorTypeEvent.java` - Enum de tipos de evento
+- ✅ `TemperatureSensor.java` - Entidad especializada
+- ✅ `User.java` - Entidad principal
+- ✅ `WaterLevelSensor.java` - Entidad especializada
+- ✅ `WaterTank.java` - Entidad con lógica de dominio pura
+
+#### **Clases que SALEN de Domain (Detalles de Implementación):**
+
+| Clase | ¿Por Qué Sale? | Nuevo Destino |
+|-------|----------------|----------------|
+| **EventHandler** | Es una implementación del patrón Observer. El dominio debe definir interfaces, no implementaciones. | `domain/event/` (si es modelo) o `application/service/` |
+| **EventListener** | Es una interface técnica del patrón Observer, no una regla de negocio pura. | `application/port/outbound/` como contrato hacia aplicación |
+| **Alarm** | Es una entidad que depende de infraestructura (sonido, notificaciones). Debería ser un servicio de aplicación. | `application/service/` o `infrastructure/external/` |
+
+### 4.2 Domain Después de la Limpieza
+
+```
+domain/
+├── model/
+│   ├── Credential.java
+│   ├── Event.java
+│   ├── Sensor.java
+│   ├── TemperatureSensor.java
+│   ├── User.java
+│   ├── WaterLevelSensor.java
+│   └── WaterTank.java
+├── service/
+│   ├── IPump.java
+│   ├── IWaterSystemStatus.java
+│   └── PasswordHasher.java      # MOVIDO desde Services
+└── event/
+    ├── SensorTypeEvent.java
+    └── RoleType.java
+```
+
+**Resultado:** Domain contiene SOLO lógica de negocio pura, value objects y contratos (interfaces). Ninguna implementación concreta.
+
+---
+
+## 5. EXPLICACIÓN UML - REDUCCIÓN DE ACOPLAMIENTO
+
+### 5.1 Diagrama de Paquetes Actual (Problemático)
+
+```
+┌─────────────────────────────────┐
+│         ui (Presentation)       │
+│                                 │
+│  Console                        │
+└─────────────────────────────────┘
+                │
+                ▼
+┌─────────────────────────────────┐
+│      Services (Application)     │
+│                                 │
+│  CommandHandler, AuthService,   │
+│  Pump, WaterLevelManager        │
+└─────────────────────────────────┘
+                │
+                ▼
+┌─────────────────────────────────┐
+│        Domain                   │
+│                                 │
+│  User, Sensor, IPump,           │
+│  EventHandler                   │
+└─────────────────────────────────┘
+                │
+                ▼
+┌─────────────────────────────────┐
+│     Repository (Infrastructure) │
+│                                 │
+│  InMemoryUserRepository,        │
+│  FileLogRepository              │
+└─────────────────────────────────┘
+                │
+                ▼
+┌─────────────────────────────────┐
+│     ArduinoComm (Infrastructure)│
+│                                 │
+│  ArduinoSerial                  │
+└─────────────────────────────────┘
+```
+
+**Problemas:**
+- ❌ Domain depende de Repository (interfaces mezcladas)
+- ❌ Services conoce implementaciones concretas
+- ❌ Acoplamiento alto entre capas
+- ❌ Domain "sucio" con implementaciones
+
+### 5.2 Diagrama de Paquetes Propuesto (Clean Architecture)
+
+```
+┌─────────────────────────────────┐       ┌─────────────────────────────────┐
+│    presentation/console         │       │   infrastructure/hardware     │
+│                                 │       │                                 │
+│  Console                        │       │  ArduinoSerial, Pump          │
+└─────────────────────────────────┘       └─────────────────────────────────┘
+                │                                 │
+                ▼                                 ▼
+┌─────────────────────────────────┐       ┌─────────────────────────────────┐
+│     application/service         │◄──────┤  infrastructure/persistence   │
+│                                 │       │                                 │
+│  CommandHandler, AuthService,   │       │  InMemoryUserRepository,      │
+│  WaterLevelManager              │       │  FileLogRepository            │
+└─────────────────────────────────┘       └─────────────────────────────────┘
+                │                                 │
+                ▼                                 ▼
+        ┌─────────────────────────────────┐
+        │           domain                 │
+        │                                 │
+        │  User, Sensor, WaterTank,       │
+        │  IPump, IWaterSystemStatus      │
+        └─────────────────────────────────┘
+                        ▲
+                        │
+        ┌─────────────────────────────────┐
+        │  infrastructure/security        │
+        │                                 │
+        │  SimplePasswordHasher           │
+        └─────────────────────────────────┘
+```
+
+### 5.3 Por Qué Domain No Tiene Flechas Apuntando Hacia Afuera
+
+**Principio Fundamental de Clean Architecture:**
+- **Domain es el Núcleo Puro** - No conoce tecnologías externas
+- **Domain define Contratos** - Interfaces que otras capas implementan
+- **Domain es Independiente** - Puede ser probado sin infraestructura
+
+**En el Diagrama:**
+- ✅ **Domain NO apunta a nada** - Es el centro, otras capas dependen de él
+- ✅ **Infrastructure apunta a Domain** - Implementa interfaces de Domain
+- ✅ **Application apunta a Domain** - Usa entidades y contratos de Domain
+- ✅ **Presentation apunta a Application** - Nunca directamente a Domain
+
+**Beneficios del Acoplamiento Reducido:**
+- 🔄 **Fácil Testing:** Domain se puede testear sin dependencias externas
+- 🔄 **Cambio Tecnológico:** Cambiar Arduino por otro hardware no afecta Domain
+- 🔄 **Reutilización:** Domain puede ser usado en diferentes aplicaciones (web, móvil)
+- 🔄 **Mantenibilidad:** Cambios en infraestructura no afectan lógica de negocio
+
+**Ejemplo Práctico:**
+- Si cambiamos `ArduinoSerial` por `MockArduinoSerial` para testing, solo cambia `infrastructure/hardware/`
+- `Domain` permanece intacto porque define `IPump`, no conoce `ArduinoSerial`
+
+---
+
+## 6. PLAN DE IMPLEMENTACIÓN
+
+### 6.1 Fases de Migración
+
+#### **Fase 1: Preparación (30 min)**
+1. Crear nueva estructura de directorios
+2. Crear archivo `package-info.java` en cada paquete con descripción
+
+#### **Fase 2: Migración de Interfaces (1 hora)**
+1. Mover interfaces de contrato a `domain/service/`
+2. Actualizar imports en implementaciones
+
+#### **Fase 3: Migración de Implementaciones (1 hora)**
+1. Mover implementaciones concretas a `infrastructure/`
+2. Crear nuevas interfaces `InputProvider`, `OutputProvider`
+
+#### **Fase 4: Migración de Application Layer (1 hora)**
+1. Mover services y commands a `application/`
+2. Limpiar Domain de implementaciones
+
+#### **Fase 5: Composition Root (30 min)**
+1. Actualizar `Main.java` con nuevas importaciones
+2. Verificar inyección de dependencias
+
+#### **Fase 6: Testing y Validación (1 hora)**
+1. Ejecutar aplicación completa
+2. Verificar que funcionalidad funciona
+3. Crear tests unitarios con mocks
+
+### 6.2 Riesgos y Mitigaciones
+
+| Riesgo | Probabilidad | Mitigación |
+|--------|-------------|------------|
+| Imports rotos | Alta | Usar IDE para refactor automático |
+| Dependencias circulares | Media | Seguir estrictamente las reglas de dependencia |
+| Funcionalidad rota | Media | Tests de integración antes/durante/después |
+| Tiempo de migración | Baja | Migración incremental por capas |
+
+### 6.3 Beneficios Esperados
+
+- ✅ **SOLID DIP:** Dependencias invertidas correctamente
+- ✅ **GRASP Bajo Acoplamiento:** Capas independientes
+- ✅ **Escalabilidad:** Fácil agregar nuevas implementaciones
+- ✅ **Testabilidad:** Domain 100% testable sin infraestructura
+- ✅ **Mantenibilidad:** Cambios localizados por capa
+
+---
+
+**FIN DE LA PROPUESTA DE REESTRUCTURACIÓN**
+
+*Esta reestructuración transformará el proyecto de una arquitectura básica a una arquitectura profesional siguiendo Clean Architecture, preparada para crecimiento futuro.*
+</content>
+<parameter name="filePath">c:\Users\dlyno\IdeaProjects\Tecnologia_water_tank\ESTRUCTURA
