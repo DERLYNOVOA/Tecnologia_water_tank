@@ -136,9 +136,9 @@ PasswordHasher (verificación SHA-256)
 
 ### 2.1 Responsabilidad de Cada Paquete
 
-#### **2.1.1 Paquete: `ArduinoComm`**
+#### **2.1.1 Paquete: `infrastructure.hardware`**
 
-**Responsabilidad:** Comunicación de hardware a software
+**Responsabilidad:** Comunicación de infrastructure.hardware a software
 
 **Contenido:**
 - `ArduinoSerial.java` - Única clase en este paquete
@@ -162,7 +162,7 @@ PasswordHasher (verificación SHA-256)
 
 ---
 
-#### **2.1.2 Paquete: `Domain`**
+#### **2.1.2 Paquete: `domain`**
 
 **Responsabilidad:** Entidades, valores y contratos del dominio de negocio
 
@@ -230,11 +230,11 @@ PasswordHasher (verificación SHA-256)
 **Acoplamiento:**
 - ⚠️ **MODERADO** - `InMemoryUserRepository` inicializa datos con `SimplePasswordHasher`
 - Debería inyectarse en lugar de instanciarse dentro del repositorio
-- ❌ **Acoplamiento con Domain** es apropiado (debe trabajar con `User`, `Credential`)
+- ❌ **Acoplamiento con domain** es apropiado (debe trabajar con `User`, `Credential`)
 
 ---
 
-#### **2.1.4 Paquete: `Services`**
+#### **2.1.4 Paquete: `domain.service`**
 
 **Responsabilidad:** Lógica de aplicación, casos de uso, coordinación
 
@@ -281,12 +281,12 @@ PasswordHasher (verificación SHA-256)
 - Pero hay múltiples responsabilidades agrupadas
 
 **Acoplamiento:**
-- ❌ **ALTO dentro de Services**
+- ❌ **ALTO dentro de domain.service**
   - `LoginCommand` instancia `Scanner` (I/O acoplado)
   - `WaterLevelManager` hereda de `SensorLevelManager` (herencia innecesaria)
   - `Pump` acoplado a `ArduinoSerial`
 - ✅ **BAJO hacia otros paquetes**
-  - Depende de interfaces de Domain (`IPump`, `IWaterSystemStatus`)
+  - Depende de interfaces de domain (`IPump`, `IWaterSystemStatus`)
   - Depende de interfaces de Repository (`UserRepository`, `RepositoryLog`)
 
 ---
@@ -297,7 +297,7 @@ PasswordHasher (verificación SHA-256)
 
 **Contenido:**
 - `Main.java` - Bootstrap de la aplicación
-- `Alarm.java` - Entidad de alarma (¿Debería estar en Domain?)
+- `Alarm.java` - Entidad de alarma (¿Debería estar en domain?)
 
 **Detalle:**
 
@@ -306,7 +306,7 @@ PasswordHasher (verificación SHA-256)
 1. Instancia repositorios
 2. Instancia servicios de seguridad
 3. Instancia sensores
-4. Instancia hardware (ArduinoSerial)
+4. Instancia infrastructure.hardware (ArduinoSerial)
 5. Instancia actuadores (Pump)
 6. Instancia managers de lógica
 7. Registra comandos
@@ -316,7 +316,7 @@ PasswordHasher (verificación SHA-256)
 
 ---
 
-#### **2.1.6 Paquete: `ui`**
+#### **2.1.6 Paquete: `presentation`**
 
 **Responsabilidad:** Presentación e interacción con usuario
 
@@ -350,18 +350,18 @@ PasswordHasher (verificación SHA-256)
 ```
 ┌─────────────────────────────────────────┐
 │          CAPA DE PRESENTACIÓN            │
-│         (ui/Console.java)               │
+│         (presentation/Console.java)               │
 └─────────────────────────────────────────┘
                     ↓
 ┌─────────────────────────────────────────┐
-│       CAPA DE APLICACIÓN (Services)     │
+│       CAPA DE APLICACIÓN (domain.service)     │
 │  - Command Pattern                      │
 │  - Managers de lógica                   │
 │  - Autenticación                        │
 └─────────────────────────────────────────┘
                     ↓
 ┌─────────────────────────────────────────┐
-│     CAPA DE DOMINIO (Domain)            │
+│     CAPA DE DOMINIO (domain)            │
 │  - Entidades                            │
 │  - Interfaces de contrato               │
 │  - Lógica de dominio                    │
@@ -374,7 +374,7 @@ PasswordHasher (verificación SHA-256)
 └─────────────────────────────────────────┘
                     ↓
 ┌─────────────────────────────────────────┐
-│   CAPA DE HARDWARE (ArduinoComm)        │
+│   CAPA DE HARDWARE (infrastructure.hardware)        │
 │  - ArduinoSerial                        │
 └─────────────────────────────────────────┘
 ```
@@ -431,12 +431,12 @@ Console → IWaterSystemStatus (WaterLevelManager)
 
 | Paquete | Nivel | Justificación |
 |---|---|---|
-| ArduinoComm | ALTA | Solo responsabilidades de comunicación serial |
-| Domain | ALTA | Solo conceptos del dominio de negocio |
+| infrastructure.hardware | ALTA | Solo responsabilidades de comunicación serial |
+| domain | ALTA | Solo conceptos del dominio de negocio |
 | Repository | ALTA | Solo acceso a datos y persistencia |
-| Services | MEDIA-ALTA | Múltiples concerns: auth, comandos, managers, contexto |
+| domain.service | MEDIA-ALTA | Múltiples concerns: auth, comandos, managers, contexto |
 | Main | BAJA | Solo bootstrap, no es lógica reutilizable |
-| ui | ALTA | Solo presentación e I/O |
+| presentation | ALTA | Solo presentación e I/O |
 
 **Cohesión General:** ✅ **ALTA**
 - Los paquetes tienen propósitos claros
@@ -449,27 +449,27 @@ Console → IWaterSystemStatus (WaterLevelManager)
 **Dependencias Permitidas (Correctas):**
 
 ```
-ui → Services ✅
-ui → Domain (interfaces) ✅
-Services → Domain ✅
-Services → Repository ✅
-Repository → Domain ✅
-ArduinoComm → Domain ✅
+presentation → domain.service ✅
+presentation → domain (interfaces) ✅
+domain.service → domain ✅
+domain.service → Repository ✅
+Repository → domain ✅
+infrastructure.hardware → domain ✅
 Main → Todos (bootstrap) ✅
 ```
 
 **Dependencias Problemáticas:**
 
 ```
-❌ ArduinoComm → Services (No debería)
-   Actual: ArduinoSerial no tiene dependencias de Services (OK)
+❌ infrastructure.hardware → domain.service (No debería)
+   Actual: ArduinoSerial no tiene dependencias de domain.service (OK)
 
-❌ Domain → Services (No debería)
-   Actual: Domain no tiene dependencias de Services (OK)
+❌ domain → domain.service (No debería)
+   Actual: domain no tiene dependencias de domain.service (OK)
 
-❌ Repository → Services (No debería)
-   Actual: InMemoryUserRepository → SimplePasswordHasher (¿en Services?)
-   PROBLEMA: SimplePasswordHasher está en Services pero es una utilidad
+❌ Repository → domain.service (No debería)
+   Actual: InMemoryUserRepository → SimplePasswordHasher (¿en domain.service?)
+   PROBLEMA: SimplePasswordHasher está en domain.service pero es una utilidad
 ```
 
 **Conclusión:** ✅ **Las dependencias fluyen hacia abajo (correcto)**
@@ -482,13 +482,13 @@ Main → Todos (bootstrap) ✅
 
 | Interfaz | Ubicación | Propósito | ¿Bien Usada? |
 |---|---|---|---|
-| `IPump` | Domain | Contrato de bomba | ✅ SÍ - Pump la implementa, Commands la usan |
-| `IWaterSystemStatus` | Domain | Lectura de estado | ✅ SÍ - WaterLevelManager la implementa, Console la usa |
-| `EventListener` | Domain | Observer implícito | ✅ SÍ - WaterLevelManager la implementa |
+| `IPump` | domain | Contrato de bomba | ✅ SÍ - Pump la implementa, Commands la usan |
+| `IWaterSystemStatus` | domain | Lectura de estado | ✅ SÍ - WaterLevelManager la implementa, Console la usa |
+| `EventListener` | domain | Observer implícito | ✅ SÍ - WaterLevelManager la implementa |
 | `UserRepository` | Repository | CRUD de usuarios | ✅ SÍ - bien implementada |
 | `RepositoryLog` | Repository | Persistencia de logs | ✅ SÍ - bien implementada |
-| `PasswordHasher` | Services | Hash de contraseñas | ✅ SÍ - SimplePasswordHasher la implementa |
-| `Command` | Services | Patrón Command | ✅ SÍ - Múltiples comandos la implementan |
+| `PasswordHasher` | domain.service | Hash de contraseñas | ✅ SÍ - SimplePasswordHasher la implementa |
+| `Command` | domain.service | Patrón Command | ✅ SÍ - Múltiples comandos la implementan |
 
 **Evaluación:** ✅ **Las interfaces están bien usadas**
 - Abstractan correctamente los contratos
@@ -541,7 +541,7 @@ Main → Todos (bootstrap) ✅
 
 | Aspecto | Calificación | Comentario |
 |---|---|---|
-| **Separación de Capas** | ✅ BUENA | Capas claramente identificadas: UI → Services → Domain → Repository → Hardware |
+| **Separación de Capas** | ✅ BUENA | Capas claramente identificadas: UI → domain.service → domain → Repository → Hardware |
 | **Responsabilidad por Paquete** | ✅ BUENA | Cada paquete tiene propósito claro |
 | **Cohesión** | ✅ ALTA | No hay mezcla de concerns indebida |
 | **Acoplamiento** | ⚠️ MODERADO | Console acoplada a AppContext; ArduinoSerial acoplada a WaterLevelSensor |
@@ -816,7 +816,7 @@ public RepositoryLog getLogger()  { return logger; }
 **✅ DIP en IPump:**
 - **Módulo alto:** `WaterLevelManager` (lógica de negocio)
 - **Módulo bajo:** `Pump` (implementación concreta)
-- **Abstracción:** `IPump` (interface en Domain)
+- **Abstracción:** `IPump` (interface en domain)
 - **Dependencia:** `WaterLevelManager` depende de `IPump`, no de `Pump`
 - **Evaluación:** ✅ DIP cumplido correctamente
 
@@ -937,7 +937,7 @@ String role = context.getAuth().getCurrentUser().getRole().toString();
 - **Evaluación:** Bajo acoplamiento logrado
 
 **✅ Repository Pattern:**
-- **Acoplamiento:** Services dependen de interfaces, no implementaciones
+- **Acoplamiento:** domain.service dependen de interfaces, no implementaciones
 - **Beneficio:** Cambiar persistencia no afecta lógica de negocio
 - **Evaluación:** Bajo acoplamiento logrado
 
@@ -1023,7 +1023,7 @@ String role = context.getAuth().getCurrentUser().getRole().toString();
 
 **✅ Repository implementations:**
 - **Polimorfismo:** `AuthenticationService` usa cualquier `UserRepository`
-- **Beneficio:** Cambiar implementación sin afectar service
+- **Beneficio:** Cambiar implementación sin afectar domain.service
 - **Evaluación:** Polimorfismo bien usado
 
 ### 5.7 Fabricación Pura (Pure Fabrication)
@@ -1567,7 +1567,7 @@ Basado en el análisis exhaustivo del código, se identifican los siguientes pro
 ### 10.1 Refactorizaciones Prioritarias
 
 #### **Refactorización 1: Separar WaterLevelManager (SRP + Strategy)**
-**Dónde:** `Services/WaterLevelManager.java`
+**Dónde:** `domain.service/WaterLevelManager.java`
 **Problema:** Múltiples responsabilidades mezcladas
 **Solución:**
 1. Crear interface `PumpStrategy` con método `boolean shouldChangePumpState(float level, boolean currentState)`
@@ -1581,7 +1581,7 @@ Basado en el análisis exhaustivo del código, se identifican los siguientes pro
 **Beneficio:** Mejora cohesión, permite algoritmos intercambiables
 
 #### **Refactorización 2: Implementar Observer Completo**
-**Dónde:** `Domain/EventHandler.java`, `Main/Alarm.java`, `ui/Console.java`
+**Dónde:** `domain/EventHandler.java`, `Main/Alarm.java`, `presentation/Console.java`
 **Problema:** Observer limitado, alarmas desconectadas
 **Solución:**
 1. Hacer `Alarm` implementar `EventListener`
@@ -1592,7 +1592,7 @@ Basado en el análisis exhaustivo del código, se identifican los siguientes pro
 **Beneficio:** Sistema reactivo, alarmas automáticas, logging desacoplado
 
 #### **Refactorización 3: Crear Fachada en AppContext (DIP + ISP)**
-**Dónde:** `Services/AppContext.java`, `ui/Console.java`
+**Dónde:** `domain.service/AppContext.java`, `presentation/Console.java`
 **Problema:** Service Locator anti-patrón
 **Solución:**
 1. Agregar métodos de fachada en `AppContext`:
@@ -1605,7 +1605,7 @@ Basado en el análisis exhaustivo del código, se identifican los siguientes pro
 **Beneficio:** Reduce acoplamiento, mejora encapsulación
 
 #### **Refactorización 4: Abstraer I/O con Interfaces**
-**Dónde:** `Services/LoginCommand.java`, `ui/Console.java`
+**Dónde:** `domain.service/LoginCommand.java`, `presentation/Console.java`
 **Problema:** I/O acoplado directamente
 **Solución:**
 1. Crear interfaces:
@@ -1620,7 +1620,7 @@ Basado en el análisis exhaustivo del código, se identifican los siguientes pro
 **Beneficio:** Código testable, desacoplado de I/O físico
 
 #### **Refactorización 5: Hacer CommandHandler Dinámico y Seguro**
-**Dónde:** `Services/CommandHandler.java`, `ui/Console.java`
+**Dónde:** `domain.service/CommandHandler.java`, `presentation/Console.java`
 **Problema:** Comandos hardcodeados, falta seguridad
 **Solución:**
 1. Agregar método `List<String> getAvailableCommands()`
@@ -1641,7 +1641,7 @@ Basado en el análisis exhaustivo del código, se identifican los siguientes pro
 **Beneficio:** Cumple DIP, permite configuración externa
 
 #### **Refactorización 7: Separar Console en Componentes**
-**Dónde:** `ui/Console.java`
+**Dónde:** `presentation/Console.java`
 **Problema:** Clase monolítica
 **Solución:**
 1. Crear `ConsoleRenderer` para manejo de UI y colores
@@ -1652,7 +1652,7 @@ Basado en el análisis exhaustivo del código, se identifican los siguientes pro
 **Beneficio:** Código modular, más fácil de mantener y testear
 
 #### **Refactorización 8: Mejorar Herencia en Managers**
-**Dónde:** `Services/WaterLevelManager.java`, `Services/SensorLevelManager.java`
+**Dónde:** `domain.service/WaterLevelManager.java`, `domain.service/SensorLevelManager.java`
 **Problema:** Herencia no apropiada
 **Solución:**
 1. Convertir `SensorLevelManager` en interface `LevelManager`
@@ -1672,14 +1672,14 @@ Basado en el análisis exhaustivo del código, se identifican los siguientes pro
 **SÍ, RECOMENDADO.** El proyecto actualmente mezcla interfaces de contrato (que deberían estar en capas superiores) con implementaciones tecnológicas concretas (que deberían estar aisladas en infraestructura).
 
 **Problemas Actuales:**
-- `ArduinoSerial` (implementación concreta) está en paquete `ArduinoComm` junto a dominio
+- `ArduinoSerial` (implementación concreta) está en paquete `infrastructure.hardware` junto a dominio
 - `InMemoryUserRepository` y `FileLogRepository` (implementaciones) están en `Repository` con interfaces
 - Interfaces y implementaciones comparten paquetes, violando separación de concerns
 
 **Beneficios de la Capa Infraestructura:**
 - ✅ **Aislamiento Tecnológico:** Implementaciones concretas separadas de lógica de negocio
 - ✅ **Testabilidad:** Fácil mockear infraestructura en tests
-- ✅ **Portabilidad:** Cambiar tecnología (base de datos, hardware) sin afectar dominio
+- ✅ **Portabilidad:** Cambiar tecnología (base de datos, infrastructure.hardware) sin afectar dominio
 - ✅ **Mantenibilidad:** Concerns tecnológicos separados
 
 ### 11.2 Diseño de la Capa Infraestructura
@@ -1688,7 +1688,7 @@ Basado en el análisis exhaustivo del código, se identifican los siguientes pro
 ```
 Infrastructure/
 ├── Hardware/
-│   ├── ArduinoSerial.java          (mover desde ArduinoComm)
+│   ├── ArduinoSerial.java          (mover desde infrastructure.hardware)
 │   └── SerialPortAdapter.java      (nuevo, si es necesario)
 ├── Persistence/
 │   ├── InMemoryUserRepository.java (mover desde Repository)
@@ -1700,9 +1700,9 @@ Infrastructure/
 ```
 
 **Interfaces permanecen en capas superiores:**
-- `IPump` → Domain
+- `IPump` → domain
 - `UserRepository`, `RepositoryLog` → Repository (como contratos)
-- `InputProvider`, `OutputProvider` → Services (nuevas interfaces)
+- `InputProvider`, `OutputProvider` → domain.service (nuevas interfaces)
 
 ### 11.3 Plan de Migración Paso a Paso
 
@@ -1712,7 +1712,7 @@ Infrastructure/
 
 #### **Paso 2: Mover Implementaciones Concretas**
 1. **Mover ArduinoSerial:**
-   - Desde: `ArduinoComm/ArduinoSerial.java`
+   - Desde: `infrastructure.hardware/ArduinoSerial.java`
    - Hacia: `Infrastructure/Hardware/ArduinoSerial.java`
    - Actualizar imports en `Main.java` y `Pump.java`
 
@@ -1722,7 +1722,7 @@ Infrastructure/
    - Interfaces `UserRepository.java` y `RepositoryLog.java` permanecen en `Repository/`
 
 #### **Paso 3: Crear Nuevas Interfaces en Capas Superiores**
-1. En `Services/`, crear `InputProvider.java` y `OutputProvider.java`
+1. En `domain.service/`, crear `InputProvider.java` y `OutputProvider.java`
 2. En `Infrastructure/External/`, crear implementaciones `ConsoleInputProvider.java`, `ConsoleOutputProvider.java`
 
 #### **Paso 4: Actualizar Inyección de Dependencias**
@@ -1745,7 +1745,7 @@ Infrastructure/
 @startuml Arquitectura_WaterTank
 !theme plain
 
-package "Domain" as Domain {
+package "domain" as domain {
     interface IPump
     interface IWaterSystemStatus
     interface EventListener
@@ -1767,7 +1767,7 @@ package "Repository" as Repository {
     interface RepositoryLog
 }
 
-package "Services" as Services {
+package "domain.service" as domain.service {
     class AppContext
     class AuthenticationService
     class Authenticator
@@ -1787,7 +1787,7 @@ package "Services" as Services {
     class WaterLevelManager
 }
 
-package "ArduinoComm" as ArduinoComm {
+package "infrastructure.hardware" as infrastructure.hardware {
     class ArduinoSerial
 }
 
@@ -1796,7 +1796,7 @@ package "Main" as Main {
     class Alarm
 }
 
-package "ui" as ui {
+package "presentation" as presentation {
     class Console
 }
 
@@ -1817,47 +1817,47 @@ Sensor <|-- TemperatureSensor
 SensorLevelManager <|-- WaterLevelManager
 
 ' Relaciones de asociación/dependencia
-Main --> ArduinoComm.ArduinoSerial
-Main --> Domain.WaterLevelSensor
-Main --> Domain.EventHandler
-Main --> Domain.WaterTank
-Main --> Services.Pump
-Main --> Services.WaterLevelManager
-Main --> Services.AppContext
-Main --> Services.CommandHandler
-Main --> Repository.InMemoryUserRepository
-Main --> Repository.FileLogRepository
-Main --> ui.Console
+Main --> infrastructure.hardware.ArduinoSerial
+Main --> domain.model.WaterLevelSensor
+Main --> domain.event.EventHandler
+Main --> domain.model.WaterTank
+Main --> infrastructure.hardware.Pump
+Main --> application.service.WaterLevelManager
+Main --> application.service.AppContext
+Main --> application.command.CommandHandler
+Main --> infrastructure.persistence.InMemoryUserRepository
+Main --> infrastructure.persistence.FileLogRepository
+Main --> presentation.Console
 
-Console --> Services.AppContext
-Console --> Services.CommandHandler
-Console --> Domain.IWaterSystemStatus
+Console --> application.service.AppContext
+Console --> application.command.CommandHandler
+Console --> domain.service.IWaterSystemStatus
 
-CommandHandler --> Services.AppContext
-CommandHandler --> Services.Command
+CommandHandler --> application.service.AppContext
+CommandHandler --> application.command.Command
 
-AppContext --> Services.Authenticator
-AppContext --> Domain.EventHandler
+AppContext --> application.service.Authenticator
+AppContext --> domain.event.EventHandler
 AppContext --> Repository.RepositoryLog
 
-Authenticator --> Services.AuthenticationService
-Authenticator --> Services.AuthorizationService
+Authenticator --> application.service.AuthenticationService
+Authenticator --> application.service.AuthorizationService
 
 AuthenticationService --> Repository.UserRepository
-AuthenticationService --> Services.PasswordHasher
+AuthenticationService --> domain.service.PasswordHasher
 
-Pump --> ArduinoComm.ArduinoSerial
+Pump --> infrastructure.hardware.ArduinoSerial
 
-WaterLevelManager --> Domain.IPump
-WaterLevelManager --> Domain.WaterLevelSensor
-WaterLevelManager --> Domain.WaterTank
+WaterLevelManager --> domain.service.IPump
+WaterLevelManager --> domain.model.WaterLevelSensor
+WaterLevelManager --> domain.model.WaterTank
 WaterLevelManager --> Repository.RepositoryLog
-WaterLevelManager --> Domain.EventHandler
+WaterLevelManager --> domain.event.EventHandler
 
-WaterLevelSensor --> Domain.EventHandler
-TemperatureSensor --> Domain.EventHandler
+WaterLevelSensor --> domain.event.EventHandler
+TemperatureSensor --> domain.event.EventHandler
 
-ArduinoSerial --> Domain.WaterLevelSensor
+ArduinoSerial --> domain.model.WaterLevelSensor
 
 ' Nota: InMemoryUserRepository y FileLogRepository están en Repository pero deberían estar en Infrastructure
 note right of Repository : InMemoryUserRepository y FileLogRepository\nimplementan interfaces pero deberían\nestar en Infrastructure para\nseparar implementaciones concretas
