@@ -11,7 +11,7 @@ public class Main {
         System.out.println("🚀 Iniciando Motor de Sistema Cyseth...");
 
         // 1. Seguridad y Persistencia
-        UserRepository userRepo = new InMemoryUserRepository();
+        IUserRepository userRepo = new InMemoryUserRepository();
         PasswordHasher hasher = new SimplePasswordHasher();
         AuthenticationService authService = new AuthenticationService(userRepo, hasher);
         AuthorizationService authzService = new AuthorizationService();

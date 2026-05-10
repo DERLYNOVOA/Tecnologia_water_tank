@@ -1,17 +1,15 @@
 package Repository;
 
 import Domain.User;
+import Domain.IUserRepository;
 import Domain.Credential;
 import Domain.RoleType;
 import Services.SimplePasswordHasher;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
-public class InMemoryUserRepository implements UserRepository {
+public class InMemoryUserRepository implements IUserRepository {
     private Map<UUID, User> users = new HashMap<>();
 
     public InMemoryUserRepository() {
@@ -60,5 +58,9 @@ public class InMemoryUserRepository implements UserRepository {
     public Optional<User> findById(UUID id) {
         return Optional.ofNullable(users.get(id));
     }
-}
 
+    @Override
+    public List<User> findAll() {
+     return new ArrayList<>(users.values());
+}
+}

@@ -1,15 +1,15 @@
 package Services;
 
+import Domain.IUserRepository;
 import Domain.User;
-import Repository.UserRepository;
 import java.util.Optional;
 
 public class AuthenticationService {
-    private UserRepository userRepository;
+    private IUserRepository userRepository;
     private PasswordHasher passwordHasher;
 
     //Inyectamos la dependencia en el constructor
-    public AuthenticationService(UserRepository userRepository, PasswordHasher passwordHasher) {
+    public AuthenticationService(IUserRepository userRepository, PasswordHasher passwordHasher) {
         this.userRepository = userRepository;
         this.passwordHasher = passwordHasher;
     }
@@ -26,7 +26,4 @@ public class AuthenticationService {
         return Optional.empty();
     }
 
-    public Optional<User> logout() {
-        return Optional.empty();
-    }
 }
