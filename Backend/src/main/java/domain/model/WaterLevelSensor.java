@@ -3,6 +3,7 @@ package domain.model;
 import domain.event.EventHandler;
 import domain.event.SensorTypeEvent;
 
+
 public class WaterLevelSensor extends Sensor {
     private float waterLevel;
 
@@ -19,13 +20,20 @@ public class WaterLevelSensor extends Sensor {
         this.waterLevel = waterLevel;
         handleSensor();
     }
-    public boolean hasData() { return waterLevel >= 0; }
-    @Override
-    public void handleSensor() {
-        if (isActive) {
-            Event event = new Event(java.util.UUID.randomUUID(), SensorTypeEvent.WaterLevelEvent, "WaterLevel: " + waterLevel, java.time.LocalDateTime.now());
-            handler.emitEvent(event);
-        }
+
+    public boolean hasData() {
+        return waterLevel > 0;
     }
+
+    @Override
+    protected SensorTypeEvent getSensorType() {
+        return SensorTypeEvent.WaterLevelEvent;
+    }
+
+    @Override
+    protected String getSensorDetail() {
+        return "Water Level: " + waterLevel;
+    }
+
 }
 
