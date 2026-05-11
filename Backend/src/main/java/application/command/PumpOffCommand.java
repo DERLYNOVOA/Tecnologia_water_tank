@@ -13,7 +13,7 @@ public class PumpOffCommand implements Command {
     @Override
     public void execute(AppContext context, String arg) throws Exception {
         if (!pump.getStatus()) {
-            System.out.println("⚠️  La bomba ya estaba apagada.");
+            System.out.println("La bomba ya estaba apagada.");
             return;
         }
         pump.turnOff();

@@ -1,6 +1,9 @@
 package domain.model;
 
-public class Alarm {
+import domain.service.IAlarm;
+
+public class Alarm implements IAlarm {
+
     private boolean isActive;
     private int volume;
 

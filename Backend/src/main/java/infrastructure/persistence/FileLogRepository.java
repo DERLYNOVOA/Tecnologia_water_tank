@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 public class FileLogRepository implements RepositoryLog {
 
@@ -22,6 +23,15 @@ public class FileLogRepository implements RepositoryLog {
             writer.println(logEntry);
         } catch (IOException e) {
             System.err.println("Error al guardar log: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public List<String> readAllLogs() {
+        try {
+            return java.nio.file.Files.readAllLines(java.nio.file.Paths.get(LOG_FILE));
+        } catch (IOException e) {
+            return new java.util.ArrayList<>();
         }
     }
 }

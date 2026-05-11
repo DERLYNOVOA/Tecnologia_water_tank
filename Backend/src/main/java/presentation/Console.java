@@ -1,5 +1,7 @@
 package presentation;
 
+import application.port.outbound.InputProvider;
+import application.port.outbound.OutputProvider;
 import domain.service.IWaterSystemStatus;
 import application.service.AppContext;
 import application.command.CommandHandler;
@@ -7,7 +9,7 @@ import java.util.Scanner;
 
 public class Console {
 
-    // ── ANSI ──────────────────────────────────────────────
+    // ── ANSI (se quedan igual) ──────────────────────────────────────────────
     private static final String R  = "\u001B[0m";
     private static final String B  = "\u001B[1m";
     private static final String CY = "\u001B[36m";
@@ -16,14 +18,12 @@ public class Console {
     private static final String YE = "\u001B[33m";
     private static final String BL = "\u001B[34m";
     private static final String WH = "\u001B[97m";
-    private static final String DM = "\u001B[90m";  // gris oscuro
+    private static final String DM = "\u001B[90m";
 
     private static final int INNER = 46;
 
-    // ── Mapeo numérico por rol ─────────────────────────────
-    // índice 0 = opción "1", etc.
-    private static final String[] GUEST_CMDS  = {"login",  "exit"};
-    private static final String[] GUEST_DESC  = {"Iniciar sesión", "Salir del sistema"};
+    private static final String[] GUEST_CMDS = {"login", "exit"};
+    private static final String[] GUEST_DESC = {"Iniciar sesión", "Salir del sistema"};
 
     private static final String[] ADMIN_CMDS = {
             "ver_nivel", "prender_bomba", "apagar_bomba", "logs", "logout", "exit"
@@ -31,7 +31,7 @@ public class Console {
     private static final String[] ADMIN_DESC = {
             "Ver estado del sensor",
             "Activar bomba manualmente",
-            "Desactivar bomba manualmente",   // ← nuevo
+            "Desactivar bomba manualmente",
             "Historial de eventos",
             "Cerrar sesión",
             "Salir del sistema"
@@ -40,29 +40,28 @@ public class Console {
     private final CommandHandler     commandHandler;
     private final AppContext         context;
     private final IWaterSystemStatus status;
-    private final Scanner            scanner;
+    private final InputProvider      input;   // ← reemplaza Scanner
+    private final OutputProvider output;  // ← reemplaza System.out directo
 
-    public Console(CommandHandler commandHandler, AppContext context, IWaterSystemStatus status) {
+    // Constructor actualizado: recibe los proveedores inyectados
+    public Console(CommandHandler commandHandler, AppContext context, IWaterSystemStatus status, InputProvider input, OutputProvider output) {
         this.commandHandler = commandHandler;
         this.context        = context;
         this.status         = status;
-        this.scanner        = new Scanner(System.in);
+        this.input          = input;
+        this.output         = output;
     }
 
-    // ══════════════════════════════════════════════════════
-    // CICLO PRINCIPAL
-    // ══════════════════════════════════════════════════════
     public void start() {
         printBanner();
         while (true) {
             printDashboard();
-            System.out.print(CY + B + "  WaterTank" + R + " ❯ ");
-            String input = scanner.nextLine().trim();
+            output.print(CY + B + "  WaterTank" + R + " ❯ ");
+            String rawInput = input.readLine().trim(); // ← ya no es scanner
 
-            if (input.isEmpty()) continue;
+            if (rawInput.isEmpty()) continue;
 
-            // Resolvemos número → comando real
-            String command = resolveInput(input);
+            String command = resolveInput(rawInput);
 
             if (command.equalsIgnoreCase("exit")) break;
 
@@ -70,6 +69,21 @@ public class Console {
                 context.getAuth().logout();
                 printAlert(YE, "👋", "Sesión cerrada correctamente.");
                 pause(600);
+                continue;
+            }
+
+            // Login: Console captura las credenciales y las pasa como arg
+            // LoginCommand ya no tiene Scanner
+            if (command.equalsIgnoreCase("login")) {
+                output.print("  Usuario: ");
+                String user = input.readLine().trim();
+                output.print("  Contraseña: ");
+                String pass = input.readLine().trim();
+                try {
+                    commandHandler.execute("login", user + " " + pass);
+                } catch (Exception e) {
+                    printAlert(RD, "✖", "Error en login.");
+                }
                 continue;
             }
 
@@ -85,27 +99,20 @@ public class Console {
         }
     }
 
-    /**
-     * Si el input es un número válido del menú actual, devuelve el comando.
-     * Si no, lo trata como texto directo (compatibilidad).
-     */
-    private String resolveInput(String input) {
+    private String resolveInput(String rawInput) {
         boolean loggedIn = context.getAuth().getCurrentUser() != null;
         String[] cmds    = loggedIn ? ADMIN_CMDS : GUEST_CMDS;
 
         try {
-            int idx = Integer.parseInt(input) - 1; // "1" → índice 0
-            if (idx >= 0 && idx < cmds.length) {
-                return cmds[idx];
-            }
+            int idx = Integer.parseInt(rawInput) - 1;
+            if (idx >= 0 && idx < cmds.length) return cmds[idx];
         } catch (NumberFormatException ignored) {}
 
-        return input;
+        return rawInput;
     }
 
-    // ══════════════════════════════════════════════════════
-    // BANNER
-    // ══════════════════════════════════════════════════════
+
+
     private void printBanner() {
         System.out.println();
         System.out.println(BL + B +
@@ -189,22 +196,22 @@ public class Console {
     // UTILIDADES DE DIBUJO
     // ══════════════════════════════════════════════════════
     private void printTop(String title) {
-        System.out.println(CY + "  ╔" + "═".repeat(INNER) + "╗" + R);
+        output.println(CY + "  ╔" + "═".repeat(INNER) + "╗" + R);
         printRow("  " + B + WH + centerText(title, INNER - 2) + R);
     }
 
     private void printSeparator() {
-        System.out.println(CY + "  ╠" + "═".repeat(INNER) + "╣" + R);
+        output.println(CY + "  ╠" + "═".repeat(INNER) + "╣" + R);
     }
 
     private void printBottom() {
-        System.out.println(CY + "  ╚" + "═".repeat(INNER) + "╝" + R);
+        output.println(CY + "  ╚" + "═".repeat(INNER) + "╝" + R);
     }
 
     private void printRow(String content) {
         String visible = content.replaceAll("\u001B\\[[;\\d]*m", "");
         int pad = INNER - visible.length() - 1;
-        System.out.println(CY + "  ║" + R + content + pad(Math.max(0, pad)) + CY + "║" + R);
+        output.println(CY + "  ║" + R + content + pad(Math.max(0, pad)) + CY + "║" + R);
     }
 
     /** Fila numerada: "  [1] ver_nivel      Ver estado..." */
@@ -230,7 +237,7 @@ public class Console {
     private String pad(int n) { return " ".repeat(n); }
 
     private void printAlert(String color, String icon, String msg) {
-        System.out.println("\n  " + color + icon + "  " + msg + R);
+        output.println("\n  " + color + icon + "  " + msg + R);
     }
 
     private void pause(long ms) {

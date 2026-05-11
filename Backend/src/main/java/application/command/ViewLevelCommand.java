@@ -5,7 +5,7 @@ import application.service.AppContext;
 
 public class ViewLevelCommand implements Command {
 
-    private final IWaterSystemStatus status; //usa la interface
+    private final IWaterSystemStatus status;
 
     public ViewLevelCommand(IWaterSystemStatus status) {
         this.status = status;

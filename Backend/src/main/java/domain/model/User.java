@@ -9,7 +9,7 @@ public class User {
     private String userName;
     private RoleType role;
     private boolean isActive;
-    private Credential credential; //___?????
+    private Credential credential;
 
     public User(UUID id, String userName, RoleType role, boolean isActive, Credential credential) {
         this.id = id;

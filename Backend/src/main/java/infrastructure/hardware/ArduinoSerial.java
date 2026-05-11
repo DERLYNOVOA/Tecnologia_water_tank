@@ -29,7 +29,7 @@ public class ArduinoSerial {
             } catch (InterruptedException e) {}
 
         } else {
-            System.out.println("❌ ERROR: No se pudo abrir el puerto del Arduino.");
+            System.out.println("ERROR: No se pudo abrir el puerto del Arduino.");
             return;
         }
 
@@ -49,7 +49,7 @@ public class ArduinoSerial {
                         sensorDelDominio.setWaterLevel(distanciaLeida);
 
                     } catch (NumberFormatException e) {
-                        System.err.println("⚠️ Error convirtiendo a número. Basura recibida: [" + lineaRecibida + "]");
+                        System.err.println("⚠Error convirtiendo a número. Basura recibida: [" + lineaRecibida + "]");
                     }
                 }
             }
