@@ -21,11 +21,13 @@ public class TemperatureSensor extends Sensor {
     }
 
     @Override
-    public void handleSensor() {
-        if (isActive) {
-            Event event = new Event(java.util.UUID.randomUUID(), SensorTypeEvent.TemperatureEvent, "Temperature: " + temperature, java.time.LocalDateTime.now());
-            handler.emitEvent(event);
-        }
+    protected SensorTypeEvent getSensorType() {
+        return SensorTypeEvent.TemperatureEvent;
+    }
+
+    @Override
+    protected String getSensorDetail() {
+        return "Temperature: " + temperature;
     }
 }
 
