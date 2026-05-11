@@ -19,6 +19,8 @@
             <artifactId>jSerialComm</artifactId>
             <version>2.10.4</version>
         </dependency>
+
     </dependencies>
-</project></content>
-<parameter name="filePath">c:\Users\Asus\Documents\01_ESTUDIO\UNIVERSIDAD\2026-1\TECNOLOGÍAS AVANZADAS\Tecnologia_water_tank-main\Backend\pom.xml
+
+
+</project>

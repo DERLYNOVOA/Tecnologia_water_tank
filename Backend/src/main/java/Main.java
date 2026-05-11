@@ -85,7 +85,7 @@ public class Main {
         // El ShutdownHook se encarga del cierre, pero si start() termina normal:
         conexion.cerrarConexion();
         logger.saveLog("Sistema apagado por el usuario de forma segura.");
-        System.out.println("✅ Sistema finalizado.");
+        System.out.println(" Sistema finalizado.");
         System.exit(0);
 
     }

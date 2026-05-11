@@ -34,6 +34,5 @@ public class WaterLevelSensor extends Sensor {
     protected String getSensorDetail() {
         return "Water Level: " + waterLevel;
     }
-
 }
 

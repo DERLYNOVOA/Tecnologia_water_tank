@@ -36,7 +36,7 @@ public class WaterLevelManager extends SensorLevelManager implements EventListen
         float distanciaActual = waterSensor.getWaterLevel();
         float porcentaje      = tank.calculatePercentage(distanciaActual);
 
-        if (porcentaje >= 90.0f && pump.getStatus()) {
+        if (porcentaje >= 80.0f && pump.getStatus()) {
             pump.turnOff();
             logger.saveLog("[SEGURIDAD] Apagado automático. Nivel: " + porcentaje + "%. Distancia: " + distanciaActual + "cm.");
 
