@@ -11,6 +11,7 @@ import infrastructure.external.ConsoleOutputProvider;
 import infrastructure.hardware.ArduinoSerial;
 import application.command.*;
 import application.service.*;
+import application.strategy.ConservativeStrategy;
 import application.command.CommandHandler;
 import infrastructure.hardware.Pump;
 import infrastructure.persistence.FileLogRepository;
@@ -41,7 +42,7 @@ public class Main {
         IPump miBomba = new Pump(conexion);
 
         // 5. El Cerebro (El Manager)
-        WaterLevelManager manager = new WaterLevelManager(miBomba, miSensor, miTanque, handler, logger);
+        WaterLevelManager manager = new WaterLevelManager(miBomba, miSensor, miTanque, handler, logger, new ConservativeStrategy());
 
         // Alarma y sensor de temperatura
         Alarm alarma = new Alarm();
