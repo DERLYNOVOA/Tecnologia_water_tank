@@ -23,3 +23,4 @@
 [2026-05-12 19:37:39] [SEGURIDAD] Apagado automático. Nivel: 93.333336%. Distancia: 1.0cm.
 [2026-05-12 19:37:48] [AUTO] Encendido por nivel bajo. Nivel: 18.333334%.
 [2026-05-12 19:38:32] Sistema apagado de forma segura.
+[2026-05-12 21:03:38] Sistema apagado de forma segura.

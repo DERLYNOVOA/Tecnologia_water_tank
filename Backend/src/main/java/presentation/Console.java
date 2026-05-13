@@ -13,7 +13,7 @@ import java.util.List;
 
 public class Console {
 
-    // Colores ANSI
+
     private static final String R  = "\u001B[0m", B = "\u001B[1m", CY = "\u001B[36m", GR = "\u001B[32m";
     private static final String RD = "\u001B[31m", YE = "\u001B[33m", BL = "\u001B[34m", WH = "\u001B[97m", DM = "\u001B[90m";
 
@@ -25,7 +25,7 @@ public class Console {
     private final InputProvider input;
     private final OutputProvider output;
 
-    // Estados de la UI
+
     private boolean debugMode = false;
     private boolean autoClear = true;
 
@@ -44,13 +44,13 @@ public class Console {
             String rawInput = input.readLine().trim().toLowerCase();
             if (rawInput.isEmpty()) continue;
 
-            // MODO OCULTO
+
             if (rawInput.equals("debug")) {
                 debugMode = !debugMode;
                 continue;
             }
 
-            // COMANDOS DE DEBUG (Si está activo)
+
             if (debugMode && handleDebugCommands(rawInput)) continue;
 
             if (rawInput.equals("exit")) break;
@@ -76,7 +76,6 @@ public class Console {
             context.getAuth().logout();
             return;
         }
-        // ... (resto de lógica de login y ejecución de comandos igual a la anterior)
         try {
             String command = resolveInput(rawInput);
             String[] parts = command.split(" ", 2);

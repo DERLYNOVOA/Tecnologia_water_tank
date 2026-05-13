@@ -2,7 +2,6 @@ package application.strategy;
 
 import domain.service.IPumpStrategy;
 
-// Enciende la bomba al 20% y la apaga al 90% — mantiene el tanque con mayor reserva
 public class EfficientStrategy implements IPumpStrategy {
 
     @Override

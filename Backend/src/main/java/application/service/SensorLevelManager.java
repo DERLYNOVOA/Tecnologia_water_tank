@@ -1,7 +1,6 @@
 package application.service;
 
 public abstract class SensorLevelManager {
-    //private float level;
     private float minLevel;
     private float maxLevel;
     private boolean isActive;

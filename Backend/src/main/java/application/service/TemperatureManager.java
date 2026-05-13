@@ -25,10 +25,9 @@ public class TemperatureManager extends SensorLevelManager implements EventListe
     @Override
     public void run() {
         float waterPercentage = waterStatus.getCurrentPercentage();
-        if (waterPercentage == 0) return; // sin agua, no hay temperatura que vigilar
+        if (waterPercentage == 0) return;
 
         float temp = temperatureSensor.getTemperature();
-        // Con poco agua el umbral baja porque se calienta más rápido
         float effectiveMax = waterPercentage < 30f ? getMaxLevel() - 5f : getMaxLevel();
 
         if (temp > effectiveMax) alarm.turnOn();

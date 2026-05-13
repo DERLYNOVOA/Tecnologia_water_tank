@@ -21,7 +21,7 @@ public class Alarm implements IAlarm {
     @Override
     public void turnOn() {
         isActive = true;
-        // Cuando TemperatureManager detecte sobrecalentamiento, enviará "Y2" (Intermitente)
+
         if (conexion != null) conexion.enviarComando("Y2");
     }
     @Override

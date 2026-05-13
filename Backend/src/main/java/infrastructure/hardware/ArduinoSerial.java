@@ -25,7 +25,7 @@ public class ArduinoSerial {
             try {
                 System.out.println("⏳ Esperando a que el Arduino despierte...");
                 Thread.sleep(2000);
-                enviarComando("O1"); // <-- Enciende el LED OK al iniciar
+                enviarComando("O1");
             } catch (InterruptedException e) {}
         } else {
             System.out.println("ERROR: No se pudo abrir el puerto del Arduino.");
@@ -57,7 +57,7 @@ public class ArduinoSerial {
 
     public void cerrarConexion() {
         if (puertoArduino.isOpen()) {
-            enviarComando("O0"); // <-- Apaga el LED OK antes de cerrar la comunicación
+            enviarComando("O0");
             puertoArduino.closePort();
             System.out.println("Conexión serial cerrada.");
         }

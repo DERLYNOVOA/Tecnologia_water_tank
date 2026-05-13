@@ -10,7 +10,6 @@ public class AuthenticationService {
     private UserRepository userRepository;
     private PasswordHasher passwordHasher;
 
-    //Inyectamos la dependencia en el constructor
     public AuthenticationService(UserRepository userRepository, PasswordHasher passwordHasher) {
         this.userRepository = userRepository;
         this.passwordHasher = passwordHasher;

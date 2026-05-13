@@ -5,7 +5,6 @@ import domain.service.PasswordHasher;
 import java.security.MessageDigest;
 import java.util.Base64;
 
-// Esta clase firma el contrato de la interfaz
 public class SimplePasswordHasher implements PasswordHasher {
 
     @Override

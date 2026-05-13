@@ -17,7 +17,6 @@ public class CommandHandler {
         commands.put(cmd, command);
     }
 
-    // recibe y envía los dos parámetros
     public void execute(String cmd, String arg) throws Exception {
         if (commands.containsKey(cmd)) {
             commands.get(cmd).execute(context, arg);
