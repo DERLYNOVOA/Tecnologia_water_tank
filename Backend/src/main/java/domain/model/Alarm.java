@@ -1,27 +1,33 @@
 package domain.model;
 
 import domain.service.IAlarm;
+import infrastructure.hardware.ArduinoSerial;
 
 public class Alarm implements IAlarm {
 
     private boolean isActive;
     private int volume;
-
-    public Alarm() {
+    private final ArduinoSerial conexion;
+    public Alarm( ArduinoSerial conexion) {
         this.isActive = false;
         this.volume = 0;
+        this.conexion = conexion;
     }
 
     public boolean isActive() {
         return isActive;
     }
 
+    @Override
     public void turnOn() {
         isActive = true;
+        // Cuando TemperatureManager detecte sobrecalentamiento, enviará "Y2" (Intermitente)
+        if (conexion != null) conexion.enviarComando("Y2");
     }
-
+    @Override
     public void turnOff() {
         isActive = false;
+        if (conexion != null) conexion.enviarComando("Y0"); // Apagar LED
     }
 
     public int getVolume() {

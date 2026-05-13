@@ -11,8 +11,6 @@ import infrastructure.external.ConsoleOutputProvider;
 import infrastructure.hardware.ArduinoSerial;
 import application.command.*;
 import application.service.*;
-import application.strategy.ConservativeStrategy;
-import application.command.CommandHandler;
 import infrastructure.hardware.Pump;
 import infrastructure.persistence.FileLogRepository;
 import infrastructure.persistence.InMemoryUserRepository;
@@ -23,7 +21,6 @@ public class Main {
     public static void main(String[] args) {
         System.out.println("Iniciando Motor de Sistema");
 
-        // 1. Seguridad y Persistencia
         UserRepository userRepo = new InMemoryUserRepository();
         PasswordHasher hasher = new SimplePasswordHasher();
         AuthenticationService authService = new AuthenticationService(userRepo, hasher);
@@ -31,28 +28,38 @@ public class Main {
         Authenticator authenticator = new Authenticator(authService, authzService);
         RepositoryLog logger = new FileLogRepository();
 
-        // 2. Dominio y Eventos
         EventHandler handler = new EventHandler();
-        WaterTank miTanque = new WaterTank(15.0f); //rango real de prueba
+        WaterTank miTanque = new WaterTank(15.0f);
+
         WaterLevelSensor miSensor = new WaterLevelSensor(handler);
         miSensor.setActive(true);
 
-        ArduinoSerial conexion = new ArduinoSerial("COM3", miSensor);
-
-        IPump miBomba = new Pump(conexion);
-
-        // 5. El Cerebro (El Manager)
-        WaterLevelManager manager = new WaterLevelManager(miBomba, miSensor, miTanque, handler, logger, new ConservativeStrategy());
-
-        // Alarma y sensor de temperatura
-        Alarm alarma = new Alarm();
         TemperatureSensor tempSensor = new TemperatureSensor(handler);
         tempSensor.setActive(true);
+
+        ArduinoSerial conexion = new ArduinoSerial("COM3", miSensor, tempSensor);
+
+        IPump miBomba = new Pump(conexion);
+        domain.service.IPumpStrategy pumpStrategy = new domain.service.IPumpStrategy() {
+            @Override
+            public boolean shouldTurnOff(float porcentaje) {
+                return porcentaje >= 80.0f;
+            }
+
+            @Override
+            public boolean shouldTurnOn(float porcentaje) {
+                return porcentaje <= 20.0f;
+            }
+        };
+
+        WaterLevelManager manager = new WaterLevelManager(miBomba, miSensor, miTanque, handler, logger, pumpStrategy);
+
+        // Pasamos el ArduinoSerial a la alarma
+        Alarm alarma = new Alarm(conexion);
+
         TemperatureManager tempManager = new TemperatureManager(tempSensor, manager, alarma, 15.0f, 35.0f);
-        handler.subscribe(tempManager); // WaterLevelManager ya se suscribe solo en su constructor
+        handler.subscribe(tempManager);
 
-
-        // ── 6. Apagado seguro ante cierre forzoso (Ctrl+C, excepción) ────
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             System.out.println("\n[!] Cerrando sistema...");
             conexion.cerrarConexion();
@@ -67,30 +74,23 @@ public class Main {
         cmdHandler.registerCommand("logs", new ViewLogsCommand());
         cmdHandler.registerCommand("apagar_bomba", new PumpOffCommand(miBomba));
 
-
-        // ── 8. UI: proveedores inyectados ────────────────────────────────
         InputProvider input  = new ConsoleInputProvider();
         OutputProvider output = new ConsoleOutputProvider();
-        Console ui = new Console(cmdHandler, context, manager, input, output);
 
-        // 7. Arrancamos la lectura de datos
+        // <-- AQUI: Inyectamos 'tempSensor' y la 'conexion' (ArduinoSerial) a Console para el modo DEBUG
+        Console ui = new Console(cmdHandler, context, manager, tempSensor, conexion, input, output);
+
         conexion.iniciarConexion();
 
         try {
-            ui.start(); // bloquea hasta que el usuario escoja "exit"
+            ui.start();
         } catch (Exception e) {
             System.err.println("Error fatal: " + e.getMessage());
             logger.saveLog("[ERROR FATAL] " + e.getMessage());
         }
 
-        // El ShutdownHook se encarga del cierre, pero si start() termina normal:
         conexion.cerrarConexion();
-        logger.saveLog("Sistema apagado por el usuario de forma segura.");
         System.out.println(" Sistema finalizado.");
         System.exit(0);
-
     }
-
 }
-
-

@@ -14,13 +14,13 @@ public class Pump implements IPump {
     @Override
     public void turnOn() {
         isActive = true;
-        if (conexion != null) conexion.enviarComando("1");
+        if (conexion != null) conexion.enviarComando("P1");
     }
 
     @Override
     public void turnOff() {
         isActive = false;
-        if (conexion != null) conexion.enviarComando("0");
+        if (conexion != null) conexion.enviarComando("P0");
     }
 
     @Override
